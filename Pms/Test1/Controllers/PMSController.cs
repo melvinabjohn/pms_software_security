@@ -33,14 +33,8 @@ public class PMSController : ControllerBase
     [ProducesResponseType(typeof(Policy), 200)]
     public async Task<IActionResult> GetPolicy()
     {
-        Policy source = new Policy();
-
-        using (StreamReader r = new StreamReader("PasswordPolicy.json"))
-        {
-            string json = r.ReadToEnd();
-            source = JsonSerializer.Deserialize<Policy>(json);
-        }
-        return Ok(source);
+        var policy = _pmsService.ReadPolicyFromJson();
+        return Ok(policy);
     }
 
     /// <summary>
@@ -53,10 +47,9 @@ public class PMSController : ControllerBase
     [ProducesResponseType(typeof(bool), 200)]
     public async Task<IActionResult> UpdatePolicy(Policy policy)
     {
-        string json = JsonSerializer.Serialize(policy);
-        System.IO.File.WriteAllText("PasswordPolicy.json", json);
+        var res = _pmsService.UpdatePolicy(policy);
 
-        return Ok(true);
+        return Ok(res);
     }
 
     /// <summary>

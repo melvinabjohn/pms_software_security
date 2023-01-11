@@ -5,6 +5,8 @@ namespace Test1.Services
 {
 	public interface IPMSService
 	{
+        Policy ReadPolicyFromJson();
+
         bool UpdateUserStatus(UpdateUserStatusRequest updateRequest);
         
         bool RequestAccess(AccessRequest updateRequest);

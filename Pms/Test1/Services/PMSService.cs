@@ -21,6 +21,20 @@ namespace Test1.Services
 			_context = context;
 		}
 
+
+        public Policy ReadPolicyFromJson()
+        {
+            Policy policy = new Policy();
+            using (StreamReader r = new StreamReader("PasswordPolicy.json"))
+            {
+                string json = r.ReadToEnd();
+                policy = JsonSerializer.Deserialize<Policy>(json);
+            }
+            return policy != null ? policy : new Policy();
+
+        }
+
+
 		public bool UpdateUserStatus(UpdateUserStatusRequest updateRequest)
 		{
 			var user = _context.UserDetails.FirstOrDefault(x => x.UserId.Equals(updateRequest.UserId));
@@ -118,18 +132,13 @@ namespace Test1.Services
         /// <returns></returns>
         public List<string> BulkGeneratePassword(int noOfPasswords)
         {
-            HttpClient client = new HttpClient();
-            Policy policy = new Policy();
+            HttpClient client = new();
+            
             List<string> passwords = new();
 
-            using (StreamReader r = new StreamReader("PasswordPolicy.json"))
-            {
-                string json = r.ReadToEnd();
-                policy = JsonSerializer.Deserialize<Policy>(json);
-            }
+            Policy policy = ReadPolicyFromJson();
 
-            
-            Random random = new Random();
+            Random random = new();
 
             bool isDigit = policy.IsDigitRequired;
             bool isLower = policy.IsLowercaseRequired;
@@ -234,12 +243,8 @@ namespace Test1.Services
         /// <returns></returns>
         public bool DisableUsers()
         {
-            Policy policy = new Policy();
-            using (StreamReader r = new StreamReader("PasswordPolicy.json"))
-            {
-                string json = r.ReadToEnd();
-                policy = JsonSerializer.Deserialize<Policy>(json);
-            }
+            Policy policy = ReadPolicyFromJson();
+
             var policyUpdatedDate = policy.PolicyCreatedDate;
 
             var usersToDisable =
@@ -262,7 +267,7 @@ namespace Test1.Services
         {
             LoginResponse loginResponse = new() { loginStatus = false, token = "" };
             var user = _context.UserDetails.Where(x => x.Email == loginRequest.Email).FirstOrDefault();
-
+            
             var masterPassword = _context.MasterPassword.FirstOrDefault(y => y.UserId == user.UserId);
 
             var loginPass = EncryptPassword(loginRequest.Password);
