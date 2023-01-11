@@ -12,10 +12,7 @@ namespace Test1.Controllers;
 [Route("[controller]")]
 public class PMSController : ControllerBase
 {
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+
     readonly IPMSService _pmsService;
 
     private readonly ILogger<PMSController> _logger;
@@ -26,17 +23,6 @@ public class PMSController : ControllerBase
         _pmsService = pMSService;
     }
 
-    [HttpGet(Name = "GetWeatherForecast")]
-    public IEnumerable<WeatherForecast> Test()
-    {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        {
-            Date = DateTime.Now.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        })
-        .ToArray();
-    }
 
     /// <summary>
     /// Get the current policy Details
