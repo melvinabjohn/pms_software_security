@@ -59,6 +59,10 @@ public class PMSController : ControllerBase
         return Ok(true);
     }
 
+    /// <summary>
+    /// An api to delete the existing policy.
+    /// </summary>
+    /// <returns></returns>
     [HttpDelete]
     [Route("policy/delete")]
     [ProducesResponseType(typeof(bool), 200)]
@@ -70,7 +74,11 @@ public class PMSController : ControllerBase
         return Ok(true);
     }
 
-
+    /// <summary>
+    /// To update a user status to enable state. Only admin is authorised to access this api.
+    /// </summary>
+    /// <param name="updateRequest"></param>
+    /// <returns></returns>
     [HttpPost]
     [Route("user/status")]
     [ProducesResponseType(typeof(bool), 200)]
@@ -81,6 +89,11 @@ public class PMSController : ControllerBase
         return Ok(res);
     }
 
+    /// <summary>
+    /// User can request an admin to enable his account if it gets disabled due to non adherence to new policy.
+    /// </summary>
+    /// <param name="accessRequest"></param>
+    /// <returns></returns>
     [HttpPost]
     [Route("access/request")]
     [ProducesResponseType(typeof(bool), 200)]
@@ -91,6 +104,11 @@ public class PMSController : ControllerBase
         return Ok(res);
     }
 
+    /// <summary>
+    /// User can view legacy app details including passwords assigned by PMS system.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
     [HttpGet]
     [Route("user/legacyapp/passwords")]
     [ProducesResponseType(typeof(LegacyApps), 200)]
@@ -101,7 +119,11 @@ public class PMSController : ControllerBase
         return Ok(res);
     }
 
-
+    /// <summary>
+    /// User can update master password. (PMS login password)
+    /// </summary>
+    /// <param name="passRequest"></param>
+    /// <returns></returns>
     [HttpPost]
     [Route("password/update")]
     [ProducesResponseType(typeof(bool), 200)]
@@ -112,6 +134,11 @@ public class PMSController : ControllerBase
         return Ok(res);
     }
 
+    /// <summary>
+    /// PMS generates the required number of passwords as per the policy defined by admin.
+    /// </summary>
+    /// <param name="NoOfPasswords"></param>
+    /// <returns>A list of passwords that are not leaked</returns>
     [HttpGet]
     [Route("password/generate/bulk")]
     [ProducesResponseType(typeof(string), 200)]
@@ -122,6 +149,10 @@ public class PMSController : ControllerBase
         return Ok(res);
     }
 
+    /// <summary>
+    /// Updates all the legacy app passwords of every user with compliance to the policy defined.
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
     [Route("password/update/all")]
     [ProducesResponseType(typeof(bool), 200)]
@@ -132,6 +163,10 @@ public class PMSController : ControllerBase
         return Ok(res);
     }
 
+    /// <summary>
+    /// Disable all users who have not updated the master password even after 24 hours of updation of a policy.
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
     [Route("function/disable/user")]
     [ProducesResponseType(typeof(bool), 200)]
@@ -142,6 +177,11 @@ public class PMSController : ControllerBase
         return Ok(res);
     }
 
+    /// <summary>
+    /// Users can Login to the PMS system inorder to view the legacy app credentials.
+    /// </summary>
+    /// <param name="loginrequest"></param>
+    /// <returns>Login status along with a valid token</returns>
     [HttpPost]
     [Route("login")]
     [ProducesResponseType(typeof(LoginResponse), 200)]
