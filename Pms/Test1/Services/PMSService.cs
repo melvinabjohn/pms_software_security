@@ -10,12 +10,6 @@ namespace Test1.Services
     {
         private readonly PMSDbContext _context;
 
-        //private readonly IApplicationDbContext _context;
-
-        //public PMSService(IApplicationDbContext context)
-        //{
-        //	_context = context;
-        //}
         public PMSService(PMSDbContext context)
 		{
 			_context = context;
