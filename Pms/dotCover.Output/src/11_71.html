@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/melvinabraham/Desktop/Melvin/Hochschule/pms/Pms/Test1/Models/LegacyAppPassword.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Test1.Models
+{
+    [Table(&quot;LegacyAppPassword&quot;)]
+    public class LegacyAppPassword
+	{
+		public LegacyAppPassword()
+		{
+		}
+
+        [Key]
+        public int Id { get; set; }
+
+        public int UserId { get; set; }
+        public int AppId { get; set; }
+        public string Password { get; set; }
+        public DateTime LastResetTime { get; set; }
+        public string LoginToken { get; set; }
+
+    }
+}
+
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,3,10,29,0],[11,3,11,4,0],[12,3,12,4,0],[15,25,15,29,0],[15,30,15,34,0],[17,29,17,33,0],[17,34,17,38,0],[18,28,18,32,0],[18,33,18,37,0],[19,34,19,38,0],[19,39,19,43,0],[20,41,20,45,0],[20,46,20,50,0],[21,36,21,40,0],[21,41,21,45,0]]);
+    </script>
+  </body>
+</html>

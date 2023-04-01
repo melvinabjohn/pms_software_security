@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/melvinabraham/Desktop/Melvin/Hochschule/pms/Pms/pms-testProject/MockData/DataFixture.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.Extensions.Logging;
+using Moq;
+using Test1.Controllers;
+using Test1.Models;
+using Test1.Services;
+
+namespace pms_testProject.MockData
+{
+    public partial class DataFixture&lt;T&gt; where T : Mock
+    {
+        protected T Mock { get; private set; }
+
+        protected DataFixture(T mock)
+        {
+            Mock = mock;
+
+        }
+        ~DataFixture()
+        {
+            Mock.Reset();
+        }
+
+        public class LoggerDataFixture : DataFixture&lt;Mock&lt;ILogger&lt;PMSController&gt;&gt;&gt;
+        {
+            public LoggerDataFixture() : base(new Mock&lt;ILogger&lt;PMSController&gt;&gt;())
+            {
+
+            }
+            public Mock&lt;ILogger&lt;PMSController&gt;&gt; LogManagerMock { get { return Mock; } }
+        }
+
+        public class PMSServiceDataFixture : DataFixture&lt;Mock&lt;IPMSService&gt;&gt;
+        {
+            public PMSServiceDataFixture() : base(new Mock&lt;IPMSService&gt;())
+            {
+            }
+            public Mock&lt;IPMSService&gt; ServiceFacade { get { return Mock; } }
+        }
+
+        //public class PMSDbContextDataFixture : DataFixture&lt;Mock&lt;PMSDbContext&gt;&gt;
+        //{
+        //    public PMSDbContextDataFixture() : base(new Mock&lt;PMSDbContext&gt;())
+        //    {
+        //    }
+        //    public Mock&lt;PMSDbContext&gt; DBFacade { get { return Mock; } }
+        //}
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[11,28,11,32,1],[11,33,11,45,1],[13,9,13,38,1],[14,9,14,10,1],[15,13,15,25,1],[17,9,17,10,1],[19,9,19,10,1],[20,13,20,26,1],[21,9,21,10,1],[25,42,25,82,1],[26,13,26,14,1],[28,13,28,14,1],[29,70,29,71,1],[29,72,29,84,1],[29,85,29,86,1],[34,46,34,75,1],[35,13,35,14,1],[36,13,36,14,1],[37,58,37,59,1],[37,60,37,72,1],[37,73,37,74,1]]);
+    </script>
+  </body>
+</html>

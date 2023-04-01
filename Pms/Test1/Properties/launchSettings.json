@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "Test1": {
+    "PMS": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",

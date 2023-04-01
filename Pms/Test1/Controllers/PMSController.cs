@@ -3,6 +3,8 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc;
+using PMS.Models;
+using PMS.Services;
 using Test1.Models;
 using Test1.Services;
 
@@ -33,8 +35,17 @@ public class PMSController : ControllerBase
     [ProducesResponseType(typeof(Policy), 200)]
     public async Task<IActionResult> GetPolicy()
     {
-        var policy = _pmsService.ReadPolicyFromJson();
-        return Ok(policy);
+        //ModelState.IsValid;
+        try
+        {
+            var policy = await _pmsService.ReadPolicyFromJson();
+            return Ok(policy);
+        }
+        catch (Exception)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, "Internal server error");
+        }
+        
     }
 
     /// <summary>
@@ -47,9 +58,17 @@ public class PMSController : ControllerBase
     [ProducesResponseType(typeof(bool), 200)]
     public async Task<IActionResult> UpdatePolicy(Policy policy)
     {
-        var res = _pmsService.UpdatePolicy(policy);
-
-        return Ok(res);
+        try
+        {
+            var res = await _pmsService.UpdatePolicy(policy);
+            Validator.PolicyValidator(policy);
+            return Ok(res);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, ex.Message);
+        }
+       
     }
 
     /// <summary>
@@ -61,10 +80,15 @@ public class PMSController : ControllerBase
     [ProducesResponseType(typeof(bool), 200)]
     public async Task<IActionResult> DeletePolicy()
     {
-        //string json = JsonSerializer.Serialize(null);
-        //System.IO.File.WriteAllText("PasswordPolicy.json", json);
-        System.IO.File.Delete("PasswordPolicy.json");
-        return Ok(true);
+        try
+        {
+            System.IO.File.Delete("PasswordPolicy.json");
+            return Ok(true);
+        }
+        catch (Exception)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, "Internal server error");
+        }
     }
 
     /// <summary>
@@ -77,9 +101,17 @@ public class PMSController : ControllerBase
     [ProducesResponseType(typeof(bool), 200)]
     public async Task<IActionResult> UpdateUserStatus(UpdateUserStatusRequest updateRequest)
     {
-        
-        var res = _pmsService.UpdateUserStatus(updateRequest);
-        return Ok(res);
+
+        try
+        {
+            Validator.UpdateUserValidate(updateRequest);
+            var res = await _pmsService.UpdateUserStatus(updateRequest);
+            return Ok(res);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, ex.Message);
+        }
     }
 
     /// <summary>
@@ -92,9 +124,17 @@ public class PMSController : ControllerBase
     [ProducesResponseType(typeof(bool), 200)]
     public async Task<IActionResult> RequestAccess(AccessRequest accessRequest)
     {
-        
-        var res = _pmsService.RequestAccess(accessRequest);
-        return Ok(res);
+
+        try
+        {
+            Validator.AccessRequestValidate(accessRequest);
+            var res = await _pmsService.RequestAccess(accessRequest);
+            return Ok(res);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, ex.Message);
+        }
     }
 
     /// <summary>
@@ -108,8 +148,16 @@ public class PMSController : ControllerBase
     public async Task<IActionResult> GetLegacyAppPasswords(int userId)
     {
 
-        LegacyApps res = _pmsService.GetLegacyAppPasswords(userId);
-        return Ok(res);
+        try
+        {
+            Validator.UserIdValidate(userId);
+            LegacyApps res = await _pmsService.GetLegacyAppPasswords(userId);
+            return Ok(res);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, ex.Message);
+        }
     }
 
     /// <summary>
@@ -123,8 +171,16 @@ public class PMSController : ControllerBase
     public async Task<IActionResult> UpdatePassword(PasswordUpdateRequest passRequest)
     {
 
-        bool res = _pmsService.UpdatePassword(passRequest);
-        return Ok(res);
+        try
+        {
+            Validator.UpdatePasswordRequestValidate(passRequest);
+            bool res = await _pmsService.UpdatePassword(passRequest);
+            return Ok(res);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, ex.Message);
+        }
     }
 
     /// <summary>
@@ -138,8 +194,16 @@ public class PMSController : ControllerBase
     public async Task<IActionResult> BulkGeneratePassword(int NoOfPasswords)
     {
 
-        List<string> res = _pmsService.BulkGeneratePassword(NoOfPasswords);
-        return Ok(res);
+        try
+        {
+            Validator.ValidateNoOfPasswords(NoOfPasswords);
+            List<string> res = _pmsService.BulkGeneratePassword(NoOfPasswords);
+            return Ok(res);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, ex.Message);
+        }
     }
 
     /// <summary>
@@ -152,8 +216,15 @@ public class PMSController : ControllerBase
     public async Task<IActionResult> UpdatePasswords()
     {
 
-        bool res = _pmsService.BulkAssignPasswords();
-        return Ok(res);
+        try
+        {
+            bool res = _pmsService.BulkAssignPasswords();
+            return Ok(res);
+        }
+        catch (Exception)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, "Internal server error");
+        }
     }
 
     /// <summary>
@@ -166,8 +237,15 @@ public class PMSController : ControllerBase
     public async Task<IActionResult> DisableUsers()
     {
 
-        bool res = _pmsService.DisableUsers();
-        return Ok(res);
+        try
+        {
+            bool res = _pmsService.DisableUsers();
+            return Ok(res);
+        }
+        catch (Exception)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, "Internal server error");
+        }
     }
 
     /// <summary>
@@ -176,13 +254,84 @@ public class PMSController : ControllerBase
     /// <param name="loginrequest"></param>
     /// <returns>Login status along with a valid token</returns>
     [HttpPost]
-    [Route("login")]
+    [Route("master/login")]
     [ProducesResponseType(typeof(LoginResponse), 200)]
     public async Task<IActionResult> Login(LoginRequest loginrequest)
     {
+        try
+        {
+            Validator.ValidateMasterLoginRequest(loginrequest);
+            var res = await _pmsService.Login(loginrequest);
+            return Ok(res);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, ex.Message);
+        }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="passwordLeakCheckRequest"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("password/leak")]
+    [ProducesResponseType(typeof(LeakedPasswordCheckResponse), 200)]
+    public async Task<IActionResult> CheckPasswordLeak(PasswordLeakCheckRequest passwordLeakCheckRequest)
+    {
+        try
+        {
+            Validator.ValidateCheckPasswordLeak(passwordLeakCheckRequest);
+            var res = await _pmsService.CheckPasswordLeak(passwordLeakCheckRequest);
+            return Ok(res);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, ex.Message);
+        }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="legacyAppLoginRequest"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("legacyapp/login")]
+    [ProducesResponseType(typeof(LegacyAppLoginResponse), 200)]
+    public async Task<IActionResult> LegacyAppLogin(LegacyAppLoginRequest legacyAppLoginRequest)
+    {
+        try
+        {
+            Validator.ValidateLegacyAppLoginRequest(legacyAppLoginRequest);
+            var res = await _pmsService.LegacyAppLogin(legacyAppLoginRequest);
+            return Ok(res);
+        }
+        catch (Exception)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, "Internal server error");
+        }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="policy"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("user/create")]
+    [ProducesResponseType(typeof(bool), 200)]
+    public async Task<IActionResult> CreateUser(CreateUserRequest user)
+    {
+        try
+        {
+            Validator.ValidateUser(user);
+            var res = await _pmsService.CreateUser(user);
+            return Ok(res);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, ex.Message);
+        }
 
-        var res = _pmsService.Login(loginrequest);
-        return Ok(res);
     }
 }
 

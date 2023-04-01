@@ -18,6 +18,7 @@ namespace Test1.Models
         public int AppId { get; set; }
         public string Password { get; set; }
         public DateTime LastResetTime { get; set; }
+        public string LoginToken { get; set; }
 
     }
 }

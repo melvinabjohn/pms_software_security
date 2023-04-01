@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
+
 namespace Test1.Models
 {
 	public class LoginRequest
@@ -7,6 +9,7 @@ namespace Test1.Models
 		{
 
 		}
+        [Required]
         public string Email { get; set; }
         public string Password { get; set; }
 

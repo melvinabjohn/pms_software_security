@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/melvinabraham/Desktop/Melvin/Hochschule/pms/Pms/Test1/Migrations/PMSDbContextModelSnapshot.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// &lt;auto-generated /&gt;
+using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Test1.Models;
+
+#nullable disable
+
+namespace Test1.Migrations
+{
+    [DbContext(typeof(PMSDbContext))]
+    partial class PMSDbContextModelSnapshot : ModelSnapshot
+    {
+        protected override void BuildModel(ModelBuilder modelBuilder)
+        {
+#pragma warning disable 612, 618
+            modelBuilder
+                .HasAnnotation(&quot;ProductVersion&quot;, &quot;6.0.12&quot;)
+                .HasAnnotation(&quot;Relational:MaxIdentifierLength&quot;, 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity(&quot;Test1.Models.LegacyAppData&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;AppId&quot;)
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(&quot;int&quot;);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property&lt;int&gt;(&quot;AppId&quot;), 1L, 1);
+
+                    b.Property&lt;string&gt;(&quot;AppName&quot;)
+                        .IsRequired()
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.HasKey(&quot;AppId&quot;);
+
+                    b.ToTable(&quot;LegacyAppData&quot;);
+                });
+
+            modelBuilder.Entity(&quot;Test1.Models.LegacyAppPassword&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;Id&quot;)
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(&quot;int&quot;);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property&lt;int&gt;(&quot;Id&quot;), 1L, 1);
+
+                    b.Property&lt;int&gt;(&quot;AppId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.Property&lt;DateTime&gt;(&quot;LastResetTime&quot;)
+                        .HasColumnType(&quot;datetime2&quot;);
+
+                    b.Property&lt;string&gt;(&quot;LoginToken&quot;)
+                        .IsRequired()
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;string&gt;(&quot;Password&quot;)
+                        .IsRequired()
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;int&gt;(&quot;UserId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.HasKey(&quot;Id&quot;);
+
+                    b.ToTable(&quot;LegacyAppPassword&quot;);
+                });
+
+            modelBuilder.Entity(&quot;Test1.Models.MasterPassword&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;Id&quot;)
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(&quot;int&quot;);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property&lt;int&gt;(&quot;Id&quot;), 1L, 1);
+
+                    b.Property&lt;bool&gt;(&quot;IsPasswordvalid&quot;)
+                        .HasColumnType(&quot;bit&quot;);
+
+                    b.Property&lt;DateTime&gt;(&quot;LastResetTime&quot;)
+                        .HasColumnType(&quot;datetime2&quot;);
+
+                    b.Property&lt;string&gt;(&quot;Password&quot;)
+                        .IsRequired()
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;string&gt;(&quot;Token&quot;)
+                        .IsRequired()
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;int&gt;(&quot;UserId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.HasKey(&quot;Id&quot;);
+
+                    b.ToTable(&quot;MasterPassword&quot;);
+                });
+
+            modelBuilder.Entity(&quot;Test1.Models.UserDetails&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;UserId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.Property&lt;bool&gt;(&quot;AdminAccess&quot;)
+                        .HasColumnType(&quot;bit&quot;);
+
+                    b.Property&lt;string&gt;(&quot;Email&quot;)
+                        .IsRequired()
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;string&gt;(&quot;FirstName&quot;)
+                        .IsRequired()
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;bool&gt;(&quot;IsActive&quot;)
+                        .HasColumnType(&quot;bit&quot;);
+
+                    b.Property&lt;bool&gt;(&quot;IsDisabled&quot;)
+                        .HasColumnType(&quot;bit&quot;);
+
+                    b.Property&lt;string&gt;(&quot;LastName&quot;)
+                        .IsRequired()
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.HasKey(&quot;UserId&quot;);
+
+                    b.ToTable(&quot;UserDetails&quot;);
+                });
+
+            modelBuilder.Entity(&quot;Test1.Models.UserDetails&quot;, b =&gt;
+                {
+                    b.HasOne(&quot;Test1.Models.MasterPassword&quot;, &quot;masterPassword&quot;)
+                        .WithOne(&quot;userDetails&quot;)
+                        .HasForeignKey(&quot;Test1.Models.UserDetails&quot;, &quot;UserId&quot;)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation(&quot;masterPassword&quot;);
+                });
+
+            modelBuilder.Entity(&quot;Test1.Models.MasterPassword&quot;, b =&gt;
+                {
+                    b.Navigation(&quot;userDetails&quot;)
+                        .IsRequired();
+                });
+#pragma warning restore 612, 618
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[17,9,17,10,0],[19,13,21,71,0],[23,13,23,85,0],[25,13,26,17,0],[26,17,26,18,0],[26,18,27,21,0],[27,21,29,47,0],[29,47,31,21,0],[31,21,31,107,0],[31,107,33,21,0],[33,21,35,57,0],[35,57,37,21,0],[37,21,37,39,0],[37,39,39,21,0],[39,21,39,48,0],[39,48,40,17,0],[40,17,40,18,0],[40,18,40,20,0],[42,13,43,17,0],[43,17,43,18,0],[43,18,44,21,0],[44,21,46,47,0],[46,47,48,21,0],[48,21,48,104,0],[48,104,50,21,0],[50,21,51,47,0],[51,47,53,21,0],[53,21,54,53,0],[54,53,56,21,0],[56,21,58,57,0],[58,57,60,21,0],[60,21,62,57,0],[62,57,64,21,0],[64,21,65,47,0],[65,47,67,21,0],[67,21,67,36,0],[67,36,69,21,0],[69,21,69,52,0],[69,52,70,17,0],[70,17,70,18,0],[70,18,70,20,0],[72,13,73,17,0],[73,17,73,18,0],[73,18,74,21,0],[74,21,76,47,0],[76,47,78,21,0],[78,21,78,104,0],[78,104,80,21,0],[80,21,81,47,0],[81,47,83,21,0],[83,21,84,53,0],[84,53,86,21,0],[86,21,88,57,0],[88,57,90,21,0],[90,21,92,57,0],[92,57,94,21,0],[94,21,95,47,0],[95,47,97,21,0],[97,21,97,36,0],[97,36,99,21,0],[99,21,99,49,0],[99,49,100,17,0],[100,17,100,18,0],[100,18,100,20,0],[102,13,103,17,0],[103,17,103,18,0],[103,18,104,21,0],[104,21,105,47,0],[105,47,107,21,0],[107,21,108,47,0],[108,47,110,21,0],[110,21,112,57,0],[112,57,114,21,0],[114,21,116,57,0],[116,57,118,21,0],[118,21,119,47,0],[119,47,121,21,0],[121,21,122,47,0],[122,47,124,21,0],[124,21,126,57,0],[126,57,128,21,0],[128,21,128,40,0],[128,40,130,21,0],[130,21,130,46,0],[130,46,131,17,0],[131,17,131,18,0],[131,18,131,20,0],[133,13,134,17,0],[134,17,134,18,0],[134,18,135,21,0],[135,21,139,39,0],[139,39,141,21,0],[141,21,141,52,0],[141,52,142,17,0],[142,17,142,18,0],[142,18,142,20,0],[144,13,145,17,0],[145,17,145,18,0],[145,18,146,21,0],[146,21,147,39,0],[147,39,148,17,0],[148,17,148,18,0],[148,18,148,20,0],[150,9,150,10,0]]);
+    </script>
+  </body>
+</html>

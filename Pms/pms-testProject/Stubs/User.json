@@ -1,0 +1,48 @@
+﻿{
+  "tests": [
+    {
+      "name": "UpdateUserStatusRequest_Success",
+      "data": {
+        "UserId": 1,
+        "isDisabled": true
+      }
+    },
+    {
+      "name": "AccessRequest_Success",
+      "data": {
+        "UserId": 1,
+        "Email": "melvin@gmail.com",
+        "RequestMessage": "hi req"
+      }
+    },
+    {
+      "name": "PasswordUpdateRequest_Success",
+      "data": {
+        "UserId": 1,
+        "NewPassword": "melvinabjohn",
+        "OldPassword": "melvinasda"
+      }
+    },
+    {
+      "name": "LoginRequest_Success",
+      "data": {
+        "Email": "melvin@gmail.com",
+        "Password": "abcd"
+      }
+    },
+    {
+      "name": "LoginValidRequest",
+      "data": {
+        "Email": "melvin@gmail.com",
+        "Password": "abcd"
+      }
+    },
+    {
+      "name": "LoginRequest_Failure",
+      "data": {
+        "Email": "melvin@gmail.com",
+        "Password": "abcdfail"
+      }
+    }
+  ] 
+}

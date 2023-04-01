@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/melvinabraham/Desktop/Melvin/Hochschule/pms/Pms/Test1/Controllers/PMSController.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Net.Http.Json;
+using System.Text.Json;
+using System.Xml.Linq;
+using Microsoft.AspNetCore.Mvc;
+using PMS.Models;
+using PMS.Services;
+using Test1.Models;
+using Test1.Services;
+
+namespace Test1.Controllers;
+
+[ApiController]
+[Route(&quot;[controller]&quot;)]
+public class PMSController : ControllerBase
+{
+
+    readonly IPMSService _pmsService;
+
+    private readonly ILogger&lt;PMSController&gt; _logger;
+
+    public PMSController(ILogger&lt;PMSController&gt; logger, IPMSService pMSService)
+    {
+        _logger = logger;
+        _pmsService = pMSService;
+    }
+
+
+    /// &lt;summary&gt;
+    /// Get the current policy Details
+    /// &lt;/summary&gt;
+    /// &lt;returns&gt;Policy Class&lt;/returns&gt;
+    [HttpGet]
+    [Route(&quot;policy&quot;)]
+    [ProducesResponseType(typeof(Policy), 200)]
+    public async Task&lt;IActionResult&gt; GetPolicy()
+    {
+        //ModelState.IsValid;
+        try
+        {
+            var policy = await _pmsService.ReadPolicyFromJson();
+            return Ok(policy);
+        }
+        catch (Exception)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, &quot;Internal server error&quot;);
+        }
+        
+    }
+
+    /// &lt;summary&gt;
+    /// Update or Create a new policy
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;policy&quot;&gt;&lt;/param&gt;
+    /// &lt;returns&gt;&lt;/returns&gt;
+    [HttpPost]
+    [Route(&quot;policy/update&quot;)]
+    [ProducesResponseType(typeof(bool), 200)]
+    public async Task&lt;IActionResult&gt; UpdatePolicy(Policy policy)
+    {
+        try
+        {
+            var res = await _pmsService.UpdatePolicy(policy);
+            Validator.PolicyValidator(policy);
+            return Ok(res);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, ex.Message);
+        }
+       
+    }
+
+    /// &lt;summary&gt;
+    /// An api to delete the existing policy.
+    /// &lt;/summary&gt;
+    /// &lt;returns&gt;&lt;/returns&gt;
+    [HttpDelete]
+    [Route(&quot;policy/delete&quot;)]
+    [ProducesResponseType(typeof(bool), 200)]
+    public async Task&lt;IActionResult&gt; DeletePolicy()
+    {
+        try
+        {
+            System.IO.File.Delete(&quot;PasswordPolicy.json&quot;);
+            return Ok(true);
+        }
+        catch (Exception)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, &quot;Internal server error&quot;);
+        }
+    }
+
+    /// &lt;summary&gt;
+    /// To update a user status to enable state. Only admin is authorised to access this api.
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;updateRequest&quot;&gt;&lt;/param&gt;
+    /// &lt;returns&gt;&lt;/returns&gt;
+    [HttpPost]
+    [Route(&quot;user/status&quot;)]
+    [ProducesResponseType(typeof(bool), 200)]
+    public async Task&lt;IActionResult&gt; UpdateUserStatus(UpdateUserStatusRequest updateRequest)
+    {
+
+        try
+        {
+            Validator.UpdateUserValidate(updateRequest);
+            var res = await _pmsService.UpdateUserStatus(updateRequest);
+            return Ok(res);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, ex.Message);
+        }
+    }
+
+    /// &lt;summary&gt;
+    /// User can request an admin to enable his account if it gets disabled due to non adherence to new policy.
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;accessRequest&quot;&gt;&lt;/param&gt;
+    /// &lt;returns&gt;&lt;/returns&gt;
+    [HttpPost]
+    [Route(&quot;access/request&quot;)]
+    [ProducesResponseType(typeof(bool), 200)]
+    public async Task&lt;IActionResult&gt; RequestAccess(AccessRequest accessRequest)
+    {
+
+        try
+        {
+            Validator.AccessRequestValidate(accessRequest);
+            var res = await _pmsService.RequestAccess(accessRequest);
+            return Ok(res);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, ex.Message);
+        }
+    }
+
+    /// &lt;summary&gt;
+    /// User can view legacy app details including passwords assigned by PMS system.
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;userId&quot;&gt;&lt;/param&gt;
+    /// &lt;returns&gt;&lt;/returns&gt;
+    [HttpGet]
+    [Route(&quot;user/legacyapp/passwords&quot;)]
+    [ProducesResponseType(typeof(LegacyApps), 200)]
+    public async Task&lt;IActionResult&gt; GetLegacyAppPasswords(int userId)
+    {
+
+        try
+        {
+            Validator.UserIdValidate(userId);
+            LegacyApps res = await _pmsService.GetLegacyAppPasswords(userId);
+            return Ok(res);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, ex.Message);
+        }
+    }
+
+    /// &lt;summary&gt;
+    /// User can update master password. (PMS login password)
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;passRequest&quot;&gt;&lt;/param&gt;
+    /// &lt;returns&gt;&lt;/returns&gt;
+    [HttpPost]
+    [Route(&quot;password/update&quot;)]
+    [ProducesResponseType(typeof(bool), 200)]
+    public async Task&lt;IActionResult&gt; UpdatePassword(PasswordUpdateRequest passRequest)
+    {
+
+        try
+        {
+            Validator.UpdatePasswordRequestValidate(passRequest);
+            bool res = await _pmsService.UpdatePassword(passRequest);
+            return Ok(res);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, ex.Message);
+        }
+    }
+
+    /// &lt;summary&gt;
+    /// PMS generates the required number of passwords as per the policy defined by admin.
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;NoOfPasswords&quot;&gt;&lt;/param&gt;
+    /// &lt;returns&gt;A list of passwords that are not leaked&lt;/returns&gt;
+    [HttpGet]
+    [Route(&quot;password/generate/bulk&quot;)]
+    [ProducesResponseType(typeof(string), 200)]
+    public async Task&lt;IActionResult&gt; BulkGeneratePassword(int NoOfPasswords)
+    {
+
+        try
+        {
+            Validator.ValidateNoOfPasswords(NoOfPasswords);
+            List&lt;string&gt; res = _pmsService.BulkGeneratePassword(NoOfPasswords);
+            return Ok(res);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, ex.Message);
+        }
+    }
+
+    /// &lt;summary&gt;
+    /// Updates all the legacy app passwords of every user with compliance to the policy defined.
+    /// &lt;/summary&gt;
+    /// &lt;returns&gt;&lt;/returns&gt;
+    [HttpGet]
+    [Route(&quot;password/update/all&quot;)]
+    [ProducesResponseType(typeof(bool), 200)]
+    public async Task&lt;IActionResult&gt; UpdatePasswords()
+    {
+
+        try
+        {
+            bool res = _pmsService.BulkAssignPasswords();
+            return Ok(res);
+        }
+        catch (Exception)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, &quot;Internal server error&quot;);
+        }
+    }
+
+    /// &lt;summary&gt;
+    /// Disable all users who have not updated the master password even after 24 hours of updation of a policy.
+    /// &lt;/summary&gt;
+    /// &lt;returns&gt;&lt;/returns&gt;
+    [HttpGet]
+    [Route(&quot;function/disable/user&quot;)]
+    [ProducesResponseType(typeof(bool), 200)]
+    public async Task&lt;IActionResult&gt; DisableUsers()
+    {
+
+        try
+        {
+            bool res = _pmsService.DisableUsers();
+            return Ok(res);
+        }
+        catch (Exception)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, &quot;Internal server error&quot;);
+        }
+    }
+
+    /// &lt;summary&gt;
+    /// Users can Login to the PMS system inorder to view the legacy app credentials.
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;loginrequest&quot;&gt;&lt;/param&gt;
+    /// &lt;returns&gt;Login status along with a valid token&lt;/returns&gt;
+    [HttpPost]
+    [Route(&quot;master/login&quot;)]
+    [ProducesResponseType(typeof(LoginResponse), 200)]
+    public async Task&lt;IActionResult&gt; Login(LoginRequest loginrequest)
+    {
+        try
+        {
+            Validator.ValidateMasterLoginRequest(loginrequest);
+            var res = await _pmsService.Login(loginrequest);
+            return Ok(res);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, ex.Message);
+        }
+    }
+    /// &lt;summary&gt;
+    /// 
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;passwordLeakCheckRequest&quot;&gt;&lt;/param&gt;
+    /// &lt;returns&gt;&lt;/returns&gt;
+    [HttpPost]
+    [Route(&quot;password/leak&quot;)]
+    [ProducesResponseType(typeof(LeakedPasswordCheckResponse), 200)]
+    public async Task&lt;IActionResult&gt; CheckPasswordLeak(PasswordLeakCheckRequest passwordLeakCheckRequest)
+    {
+        try
+        {
+            Validator.ValidateCheckPasswordLeak(passwordLeakCheckRequest);
+            var res = await _pmsService.CheckPasswordLeak(passwordLeakCheckRequest);
+            return Ok(res);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, ex.Message);
+        }
+    }
+    /// &lt;summary&gt;
+    /// 
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;legacyAppLoginRequest&quot;&gt;&lt;/param&gt;
+    /// &lt;returns&gt;&lt;/returns&gt;
+    [HttpPost]
+    [Route(&quot;legacyapp/login&quot;)]
+    [ProducesResponseType(typeof(LegacyAppLoginResponse), 200)]
+    public async Task&lt;IActionResult&gt; LegacyAppLogin(LegacyAppLoginRequest legacyAppLoginRequest)
+    {
+        try
+        {
+            Validator.ValidateLegacyAppLoginRequest(legacyAppLoginRequest);
+            var res = await _pmsService.LegacyAppLogin(legacyAppLoginRequest);
+            return Ok(res);
+        }
+        catch (Exception)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, &quot;Internal server error&quot;);
+        }
+    }
+    /// &lt;summary&gt;
+    /// 
+    /// &lt;/summary&gt;
+    /// &lt;param name=&quot;policy&quot;&gt;&lt;/param&gt;
+    /// &lt;returns&gt;&lt;/returns&gt;
+    [HttpPost]
+    [Route(&quot;user/create&quot;)]
+    [ProducesResponseType(typeof(bool), 200)]
+    public async Task&lt;IActionResult&gt; CreateUser(CreateUserRequest user)
+    {
+        try
+        {
+            Validator.ValidateUser(user);
+            var res = await _pmsService.CreateUser(user);
+            return Ok(res);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(HttpContext.Response.StatusCode, ex.Message);
+        }
+
+    }
+}
+
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[22,5,22,80,1],[23,5,23,6,1],[24,9,24,26,1],[25,9,25,34,1],[26,5,26,6,1],[37,5,37,6,1],[40,9,40,10,1],[41,13,41,65,1],[42,13,42,31,1],[44,9,44,26,0],[45,9,45,10,0],[46,13,46,89,0],[49,5,49,6,1],[60,5,60,6,1],[62,9,62,10,1],[63,13,63,62,1],[64,13,64,47,1],[65,13,65,28,1],[67,9,67,29,0],[68,9,68,10,0],[69,13,69,76,0],[72,5,72,6,1],[82,5,82,6,0],[84,9,84,10,0],[85,13,85,58,0],[86,13,86,29,0],[88,9,88,26,0],[89,9,89,10,0],[90,13,90,89,0],[92,5,92,6,0],[103,5,103,6,1],[106,9,106,10,1],[107,13,107,57,1],[108,13,108,73,1],[109,13,109,28,1],[111,9,111,29,0],[112,9,112,10,0],[113,13,113,76,0],[115,5,115,6,1],[126,5,126,6,1],[129,9,129,10,1],[130,13,130,60,1],[131,13,131,70,1],[132,13,132,28,1],[134,9,134,29,0],[135,9,135,10,0],[136,13,136,76,0],[138,5,138,6,1],[149,5,149,6,1],[152,9,152,10,1],[153,13,153,46,1],[154,13,154,78,1],[155,13,155,28,1],[157,9,157,29,0],[158,9,158,10,0],[159,13,159,76,0],[161,5,161,6,1],[172,5,172,6,1],[175,9,175,10,1],[176,13,176,66,1],[177,13,177,70,1],[178,13,178,28,1],[180,9,180,29,0],[181,9,181,10,0],[182,13,182,76,0],[184,5,184,6,1],[195,5,195,6,1],[198,9,198,10,1],[199,13,199,60,1],[200,13,200,80,1],[201,13,201,28,1],[203,9,203,29,0],[204,9,204,10,0],[205,13,205,76,0],[207,5,207,6,1],[217,5,217,6,1],[220,9,220,10,1],[221,13,221,58,1],[222,13,222,28,1],[224,9,224,26,0],[225,9,225,10,0],[226,13,226,89,0],[228,5,228,6,1],[238,5,238,6,1],[241,9,241,10,1],[242,13,242,51,1],[243,13,243,28,1],[245,9,245,26,0],[246,9,246,10,0],[247,13,247,89,0],[249,5,249,6,1],[260,5,260,6,1],[262,9,262,10,1],[263,13,263,64,1],[264,13,264,61,1],[265,13,265,28,1],[267,9,267,29,0],[268,9,268,10,0],[269,13,269,76,0],[271,5,271,6,1],[281,5,281,6,0],[283,9,283,10,0],[284,13,284,75,0],[285,13,285,85,0],[286,13,286,28,0],[288,9,288,29,0],[289,9,289,10,0],[290,13,290,76,0],[292,5,292,6,0],[302,5,302,6,0],[304,9,304,10,0],[305,13,305,76,0],[306,13,306,79,0],[307,13,307,28,0],[309,9,309,26,0],[310,9,310,10,0],[311,13,311,89,0],[313,5,313,6,0],[323,5,323,6,0],[325,9,325,10,0],[326,13,326,42,0],[327,13,327,58,0],[328,13,328,28,0],[330,9,330,29,0],[331,9,331,10,0],[332,13,332,76,0],[335,5,335,6,0]]);
+    </script>
+  </body>
+</html>

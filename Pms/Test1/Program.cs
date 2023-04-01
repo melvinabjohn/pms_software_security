@@ -5,10 +5,10 @@ using Test1.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+/// Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+/// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -16,9 +16,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<PMSDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//Adding interfaces
-//builder.Services.AddScoped<IApplicationDbContext, PMSDbContext>();
-//builder.Services.AddScoped<IDbContext, IApplicationDbContext>();
+///Adding interfaces
 builder.Services.AddScoped<IPMSService, PMSService>();
 
 

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/melvinabraham/Desktop/Melvin/Hochschule/pms/Pms/Test1/Migrations/20230109222453_V4.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace Test1.Migrations
+{
+    public partial class V4 : Migration
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: &quot;resetStatus&quot;,
+                table: &quot;MasterPassword&quot;);
+        }
+
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.AddColumn&lt;bool&gt;(
+                name: &quot;resetStatus&quot;,
+                table: &quot;MasterPassword&quot;,
+                type: &quot;bit&quot;,
+                nullable: false,
+                defaultValue: false);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,9,10,10,0],[11,13,13,42,0],[14,9,14,10,0],[17,9,17,10,0],[18,13,23,38,0],[24,9,24,10,0]]);
+    </script>
+  </body>
+</html>

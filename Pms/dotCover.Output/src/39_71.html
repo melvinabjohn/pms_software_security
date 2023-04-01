@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/melvinabraham/Desktop/Melvin/Hochschule/pms/Pms/Test1/Services/Validator.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using PMS.Models;
+using Test1.Models;
+
+namespace PMS.Services
+{
+	public static class Validator
+	{
+
+		public static void PolicyValidator(Policy policy)
+		{
+            if (policy.AdminId &lt;= 0)
+            {
+                throw new Exception(&quot;adminId must be a positive integer.&quot;);
+            }
+            if (string.IsNullOrEmpty(policy.LoginToken))
+            {
+                throw new Exception(&quot;loginToken cannot be empty.&quot;);
+            }
+            if (policy.PolicyId &lt; 0)
+            {
+                throw new Exception(&quot;policyId must be a non-negative integer.&quot;);
+            }
+            if (string.IsNullOrEmpty(policy.PolicyName))
+            {
+                throw new Exception(&quot;policyName cannot be empty.&quot;);
+            }
+            if (policy.RequiredLength &lt; 0)
+            {
+                throw new Exception(&quot;requiredLength must be a non-negative integer.&quot;);
+            }
+            if (policy.UppercasesRequired &lt; 0)
+            {
+                throw new Exception(&quot;UppercasesRequired must be a non-negative integer.&quot;);
+            }
+            if (policy.LowercasesRequired &lt; 0)
+            {
+                throw new Exception(&quot;LowercasesRequired must be a non-negative integer.&quot;);
+            }
+            if (policy.DigitsRequired &lt; 0)
+            {
+                throw new Exception(&quot;DigitsRequired must be a non-negative integer.&quot;);
+            }
+            if (policy.NonAlphanumericsRequired &lt; 0)
+            {
+                throw new Exception(&quot;NonAlphanumericsRequired must be a non-negative integer.&quot;);
+            }
+            if (policy.RequiredLength &lt; (policy.NonAlphanumericsRequired + policy.DigitsRequired
+                + policy.LowercasesRequired + policy.UppercasesRequired))
+            {
+                throw new Exception(&quot;Total Required Length must be greater than the sum of all individual requirements.&quot;);
+            }
+        }
+
+        public static void UpdateUserValidate(UpdateUserStatusRequest updateUserStatusRequest)
+        {
+            if (updateUserStatusRequest.UserId &lt;= 0)
+            {
+                throw new Exception(&quot;UserId must be a positive integer.&quot;);
+            }
+        }
+
+        public static void AccessRequestValidate(AccessRequest request)
+        {
+            if (request.UserId &lt;= 0)
+            {
+                throw new Exception(&quot;userId must be a positive integer.&quot;);
+            }
+
+            if (string.IsNullOrEmpty(request.Email) || !IsValidEmail(request.Email))
+            {
+                throw new Exception(&quot;email is invalid.&quot;);
+            }
+
+            if (string.IsNullOrEmpty(request.RequestMessage))
+            {
+                throw new Exception(&quot;requestMessage cannot be empty.&quot;);
+            }
+        }
+
+        public static void UserIdValidate(int userId)
+        {
+            if (userId &lt;= 0)
+            {
+                throw new Exception(&quot;userId must be a positive integer.&quot;);
+            }
+        }
+
+        public static void UpdatePasswordRequestValidate(PasswordUpdateRequest passRequest)
+        {
+            if (passRequest.UserId &lt;= 0)
+            {
+                throw new Exception(&quot;userId must be a positive integer.&quot;);
+            }
+
+            if (string.IsNullOrEmpty(passRequest.NewPassword))
+            {
+                throw new Exception(&quot;newPassword cannot be empty.&quot;);
+            }
+
+            if (string.IsNullOrEmpty(passRequest.OldPassword))
+            {
+                throw new Exception(&quot;oldPassword cannot be empty.&quot;);
+            }
+
+        }
+
+        static bool IsValidEmail(string email)
+        {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static void ValidateNoOfPasswords(int NoOfPasswords)
+        {
+            if (NoOfPasswords &lt;= 0)
+            {
+                throw new Exception(&quot;NoOfPasswords must be a positive integer.&quot;);
+            }
+        }
+
+        public static void ValidateMasterLoginRequest(LoginRequest loginRequest)
+        {
+            if (!IsValidEmail(loginRequest.Email))
+            {
+                throw new Exception(&quot;Invalid email address.&quot;);
+            }
+
+            if (string.IsNullOrEmpty(loginRequest.Password))
+            {
+                throw new Exception(&quot;Password cannot be empty.&quot;);
+            }
+        }
+
+        public static void ValidateCheckPasswordLeak(PasswordLeakCheckRequest passwordLeakCheckRequest)
+        {
+            foreach (string password in passwordLeakCheckRequest.Passwords)
+            {
+                if (string.IsNullOrEmpty(password))
+                {
+                    throw new Exception(&quot;Password cannot be empty.&quot;);
+                }
+            }
+        }
+        public static void ValidateLegacyAppLoginRequest(LegacyAppLoginRequest userPassword)
+        {
+            if (userPassword.AppId &lt;= 0)
+            {
+                throw new Exception(&quot;appId must be a positive integer.&quot;);
+            }
+
+            if (userPassword.UserId &lt;= 0)
+            {
+                throw new Exception(&quot;userId must be a positive integer.&quot;);
+            }
+
+            if (string.IsNullOrEmpty(userPassword.Password))
+            {
+                throw new Exception(&quot;Password cannot be empty.&quot;);
+            }
+        }
+        public static void ValidateUser(CreateUserRequest request)
+        {
+            if (string.IsNullOrEmpty(request.FirstName))
+            {
+                throw new Exception(&quot;FirstName cannot be empty.&quot;);
+            }
+            if (string.IsNullOrEmpty(request.LastName))
+            {
+                throw new Exception(&quot;LastName cannot be empty.&quot;);
+            }
+            if (!IsValidEmail(request.Email))
+            {
+                throw new Exception(&quot;Invalid email address.&quot;);
+            }
+            if (string.IsNullOrEmpty(request.Password))
+            {
+                throw new Exception(&quot;password cannot be empty.&quot;);
+            }
+        }
+    }
+}
+
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[11,3,11,4,1],[12,13,12,37,1],[13,13,13,14,0],[14,17,14,76,0],[16,13,16,57,1],[17,13,17,14,0],[18,17,18,68,0],[20,13,20,37,1],[21,13,21,14,0],[22,17,22,81,0],[24,13,24,57,1],[25,13,25,14,0],[26,17,26,68,0],[28,13,28,43,1],[29,13,29,14,0],[30,17,30,87,0],[32,13,32,47,1],[33,13,33,14,0],[34,17,34,91,0],[36,13,36,47,1],[37,13,37,14,0],[38,17,38,91,0],[40,13,40,43,1],[41,13,41,14,0],[42,17,42,87,0],[44,13,44,53,1],[45,13,45,14,0],[46,17,46,97,0],[48,13,49,74,1],[50,13,50,14,0],[51,17,51,123,0],[53,9,53,10,1],[56,9,56,10,1],[57,13,57,53,1],[58,13,58,14,0],[59,17,59,75,0],[61,9,61,10,1],[64,9,64,10,1],[65,13,65,37,1],[66,13,66,14,0],[67,17,67,75,0],[70,13,70,85,1],[71,13,71,14,0],[72,17,72,58,0],[75,13,75,62,1],[76,13,76,14,0],[77,17,77,72,0],[79,9,79,10,1],[82,9,82,10,1],[83,13,83,29,1],[84,13,84,14,0],[85,17,85,75,0],[87,9,87,10,1],[90,9,90,10,1],[91,13,91,41,1],[92,13,92,14,0],[93,17,93,75,0],[96,13,96,63,1],[97,13,97,14,0],[98,17,98,69,0],[101,13,101,63,1],[102,13,102,14,0],[103,17,103,69,0],[106,9,106,10,1],[109,9,109,10,1],[111,13,111,14,1],[112,17,112,67,1],[113,17,113,46,1],[115,13,115,18,0],[116,13,116,14,0],[117,17,117,30,0],[119,9,119,10,1],[122,9,122,10,1],[123,13,123,36,1],[124,13,124,14,0],[125,17,125,82,0],[127,9,127,10,1],[130,9,130,10,1],[131,13,131,51,1],[132,13,132,14,0],[133,17,133,63,0],[136,13,136,61,1],[137,13,137,14,0],[138,17,138,66,0],[140,9,140,10,1],[143,9,143,10,0],[144,13,144,20,0],[144,22,144,37,0],[144,38,144,40,0],[144,41,144,75,0],[145,13,145,14,0],[146,17,146,52,0],[147,17,147,18,0],[148,21,148,70,0],[150,13,150,14,0],[151,9,151,10,0],[153,9,153,10,0],[154,13,154,41,0],[155,13,155,14,0],[156,17,156,74,0],[159,13,159,42,0],[160,13,160,14,0],[161,17,161,75,0],[164,13,164,61,0],[165,13,165,14,0],[166,17,166,66,0],[168,9,168,10,0],[170,9,170,10,0],[171,13,171,57,0],[172,13,172,14,0],[173,17,173,67,0],[175,13,175,56,0],[176,13,176,14,0],[177,17,177,66,0],[179,13,179,46,0],[180,13,180,14,0],[181,17,181,63,0],[183,13,183,56,0],[184,13,184,14,0],[185,17,185,66,0],[187,9,187,10,0]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/melvinabraham/Desktop/Melvin/Hochschule/pms/Pms/Test1/Migrations/20230109162631_V3.Designer.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+// &lt;auto-generated /&gt;
+using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Test1.Models;
+
+#nullable disable
+
+namespace Test1.Migrations
+{
+    [DbContext(typeof(PMSDbContext))]
+    [Migration(&quot;20230109162631_V3&quot;)]
+    partial class V3
+    {
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        {
+#pragma warning disable 612, 618
+            modelBuilder
+                .HasAnnotation(&quot;ProductVersion&quot;, &quot;6.0.12&quot;)
+                .HasAnnotation(&quot;Relational:MaxIdentifierLength&quot;, 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity(&quot;Test1.Models.LegacyAppData&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;AppId&quot;)
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(&quot;int&quot;);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property&lt;int&gt;(&quot;AppId&quot;), 1L, 1);
+
+                    b.Property&lt;string&gt;(&quot;AppName&quot;)
+                        .IsRequired()
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.HasKey(&quot;AppId&quot;);
+
+                    b.ToTable(&quot;LegacyAppData&quot;);
+                });
+
+            modelBuilder.Entity(&quot;Test1.Models.LegacyAppPassword&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;Id&quot;)
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(&quot;int&quot;);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property&lt;int&gt;(&quot;Id&quot;), 1L, 1);
+
+                    b.Property&lt;int&gt;(&quot;AppId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.Property&lt;DateTime&gt;(&quot;LastResetTime&quot;)
+                        .HasColumnType(&quot;datetime2&quot;);
+
+                    b.Property&lt;string&gt;(&quot;Password&quot;)
+                        .IsRequired()
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;int&gt;(&quot;UserId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.HasKey(&quot;Id&quot;);
+
+                    b.ToTable(&quot;LegacyAppPassword&quot;);
+                });
+
+            modelBuilder.Entity(&quot;Test1.Models.MasterPassword&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;Id&quot;)
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(&quot;int&quot;);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property&lt;int&gt;(&quot;Id&quot;), 1L, 1);
+
+                    b.Property&lt;bool&gt;(&quot;IsPasswordvalid&quot;)
+                        .HasColumnType(&quot;bit&quot;);
+
+                    b.Property&lt;DateTime&gt;(&quot;LastResetTime&quot;)
+                        .HasColumnType(&quot;datetime2&quot;);
+
+                    b.Property&lt;string&gt;(&quot;Password&quot;)
+                        .IsRequired()
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;int&gt;(&quot;UserId&quot;)
+                        .HasColumnType(&quot;int&quot;);
+
+                    b.Property&lt;bool&gt;(&quot;resetStatus&quot;)
+                        .HasColumnType(&quot;bit&quot;);
+
+                    b.HasKey(&quot;Id&quot;);
+
+                    b.ToTable(&quot;MasterPassword&quot;);
+                });
+
+            modelBuilder.Entity(&quot;Test1.Models.UserDetails&quot;, b =&gt;
+                {
+                    b.Property&lt;int&gt;(&quot;UserId&quot;)
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(&quot;int&quot;);
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property&lt;int&gt;(&quot;UserId&quot;), 1L, 1);
+
+                    b.Property&lt;bool&gt;(&quot;AdminAccess&quot;)
+                        .HasColumnType(&quot;bit&quot;);
+
+                    b.Property&lt;string&gt;(&quot;Email&quot;)
+                        .IsRequired()
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;string&gt;(&quot;FirstName&quot;)
+                        .IsRequired()
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.Property&lt;bool&gt;(&quot;IsActive&quot;)
+                        .HasColumnType(&quot;bit&quot;);
+
+                    b.Property&lt;bool&gt;(&quot;IsDisabled&quot;)
+                        .HasColumnType(&quot;bit&quot;);
+
+                    b.Property&lt;string&gt;(&quot;LastName&quot;)
+                        .IsRequired()
+                        .HasColumnType(&quot;nvarchar(max)&quot;);
+
+                    b.HasKey(&quot;UserId&quot;);
+
+                    b.ToTable(&quot;UserDetails&quot;);
+                });
+#pragma warning restore 612, 618
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[19,9,19,10,0],[21,13,23,71,0],[25,13,25,85,0],[27,13,28,17,0],[28,17,28,18,0],[28,18,29,21,0],[29,21,31,47,0],[31,47,33,21,0],[33,21,33,107,0],[33,107,35,21,0],[35,21,37,57,0],[37,57,39,21,0],[39,21,39,39,0],[39,39,41,21,0],[41,21,41,48,0],[41,48,42,17,0],[42,17,42,18,0],[42,18,42,20,0],[44,13,45,17,0],[45,17,45,18,0],[45,18,46,21,0],[46,21,48,47,0],[48,47,50,21,0],[50,21,50,104,0],[50,104,52,21,0],[52,21,53,47,0],[53,47,55,21,0],[55,21,56,53,0],[56,53,58,21,0],[58,21,60,57,0],[60,57,62,21,0],[62,21,63,47,0],[63,47,65,21,0],[65,21,65,36,0],[65,36,67,21,0],[67,21,67,52,0],[67,52,68,17,0],[68,17,68,18,0],[68,18,68,20,0],[70,13,71,17,0],[71,17,71,18,0],[71,18,72,21,0],[72,21,74,47,0],[74,47,76,21,0],[76,21,76,104,0],[76,104,78,21,0],[78,21,79,47,0],[79,47,81,21,0],[81,21,82,53,0],[82,53,84,21,0],[84,21,86,57,0],[86,57,88,21,0],[88,21,89,47,0],[89,47,91,21,0],[91,21,92,47,0],[92,47,94,21,0],[94,21,94,36,0],[94,36,96,21,0],[96,21,96,49,0],[96,49,97,17,0],[97,17,97,18,0],[97,18,97,20,0],[99,13,100,17,0],[100,17,100,18,0],[100,18,101,21,0],[101,21,103,47,0],[103,47,105,21,0],[105,21,105,108,0],[105,108,107,21,0],[107,21,108,47,0],[108,47,110,21,0],[110,21,112,57,0],[112,57,114,21,0],[114,21,116,57,0],[116,57,118,21,0],[118,21,119,47,0],[119,47,121,21,0],[121,21,122,47,0],[122,47,124,21,0],[124,21,126,57,0],[126,57,128,21,0],[128,21,128,40,0],[128,40,130,21,0],[130,21,130,46,0],[130,46,131,17,0],[131,17,131,18,0],[131,18,131,20,0],[133,9,133,10,0]]);
+    </script>
+  </body>
+</html>

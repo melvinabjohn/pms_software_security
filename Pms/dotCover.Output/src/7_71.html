@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/melvinabraham/Desktop/Melvin/Hochschule/pms/Pms/Test1/Services/PMSService.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using PMS;
+using PMS.Models;
+using Test1.Models;
+
+
+namespace Test1.Services
+{
+	public class PMSService : IPMSService
+    {
+        private readonly PMSDbContext _context;
+
+        public PMSService(PMSDbContext context)
+		{
+			_context = context;
+		}
+
+
+        public async Task&lt;Policy&gt; ReadPolicyFromJson()
+        {
+
+            Policy? policy = new();
+            using (StreamReader r = new StreamReader(&quot;PasswordPolicy.json&quot;))
+            {
+                string json = r.ReadToEnd();
+                if (json is null)
+                {
+                    //policy = null;
+                    return policy;
+                }
+                else
+                {
+                    policy = JsonSerializer.Deserialize&lt;Policy&gt;(json);
+                    if (policy != null)
+                    {
+                        return policy;
+                    }
+                    else
+                    {
+                        throw new ArgumentNullException();
+                    }
+                }
+                
+            }
+            //return policy != null ? policy : new Policy();
+
+        }
+
+
+		public async Task&lt;bool&gt; UpdateUserStatus(UpdateUserStatusRequest updateRequest)
+		{
+			var user = _context.UserDetails.FirstOrDefault(x =&gt; x.UserId.Equals(updateRequest.UserId));
+			if(user != null)
+			{
+                user.IsDisabled = updateRequest.isDisabled;
+            }
+			await _context.SaveChangesAsync();
+			return true;
+		}
+
+        public async Task&lt;bool&gt; RequestAccess(AccessRequest accessRequest)
+        {
+            var user = _context.UserDetails.FirstOrDefault(x =&gt; x.UserId.Equals(accessRequest.UserId));
+            if (user != null)
+            {
+                //make notification call or mail trigger
+            }
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task&lt;LegacyApps&gt; GetLegacyAppPasswords(int userId)
+        {
+            var legacyApps = _context.LegacyAppPassword.Where(x =&gt; x.UserId.Equals(userId)).ToList();
+            var appIds = legacyApps.Select(x =&gt; x.AppId);
+            var appData = _context.LegacyAppData.Where(x =&gt; appIds.Contains(x.AppId)).ToList();
+            LegacyApps apps = new();
+            List&lt;LegacyAppDetail&gt; appList = new();
+            foreach (var app in legacyApps)
+            {
+                //decrypt the password
+                var decryptedPass = DecryptPassword(app.Password);
+                var appName = &quot;&quot;;
+                if(appData != null)
+                {
+                    var data = appData.FirstOrDefault(x =&gt; x.AppId == app.AppId);
+                    appName = data != null? data.AppName : appName;
+                };
+                LegacyAppDetail application = new()
+                {
+                    AppId = app.AppId,
+                    AppName = appName,
+                    Password = decryptedPass
+                };
+                 
+                appList.Add(application);
+            }
+            
+            apps.legacyAppDetails = appList;
+            return apps;
+        }
+
+
+        public async Task&lt;bool&gt; UpdatePassword(PasswordUpdateRequest passRequest)
+        {
+            var masterPasswordData = _context.MasterPassword.FirstOrDefault(x =&gt; x.UserId.Equals(passRequest.UserId));
+            var hashedPass = EncryptPassword(passRequest.NewPassword);
+            var oldPasshash = EncryptPassword(passRequest.OldPassword);
+            if (hashedPass != null &amp;&amp; masterPasswordData != null &amp;&amp; masterPasswordData.Password == oldPasshash)
+            {
+                masterPasswordData.Password = hashedPass;
+                masterPasswordData.LastResetTime = DateTime.Now;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+
+
+        /// &lt;summary&gt;
+        /// Password encryption method(base 64 encoding)
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;password&quot;&gt;&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        public string EncryptPassword(string? password)
+        {
+            try
+            {
+                string message = &quot;&quot;;
+                if (password != null)
+                {
+                    byte[] encoded = new byte[password.Length];
+                    encoded = Encoding.UTF8.GetBytes(password);
+                    message = Convert.ToBase64String(encoded);
+                    return message;
+                }
+                else throw new NullReferenceException();
+
+            }
+            catch (NullReferenceException ex)
+            {
+                throw;
+            }
+
+        }
+        /// &lt;summary&gt;
+        /// password decruption
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;password&quot;&gt;&lt;/param&gt;
+        /// &lt;returns&gt;decrypted password as string&lt;/returns&gt;
+        public string DecryptPassword(string password)
+        {
+            byte[] data = Convert.FromBase64String(password);
+            string message = Encoding.UTF8.GetString(data);
+            return message;
+        }
+
+        public string GenerateHash(string password)
+        {
+            using var sha1 = SHA1.Create();
+            //using var sha1 = SHA512.Create();
+            return Convert.ToHexString(sha1.ComputeHash(Encoding.UTF8.GetBytes(password))).ToUpper();
+        }
+
+        /// &lt;summary&gt;
+        /// Bulk Generation of Passwords
+        /// &lt;/summary&gt;
+        /// &lt;param name=&quot;noOfPasswords&quot;&gt;&lt;/param&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        public List&lt;string&gt; BulkGeneratePassword(int noOfPasswords)
+        {           
+            List&lt;string&gt; passwords = new();
+            List&lt;string&gt; passwordsForCSV = new();
+            Policy policy = ReadPolicyFromJson().Result;
+
+            while (passwords.Count() &lt; noOfPasswords)
+            {
+                #region old
+                //bool isDigit = policy.IsDigitRequired;
+                //bool isLower = policy.IsLowercaseRequired;
+                //bool isUpper = policy.IsUppercaseRequired;
+                //bool isNonAlphaNumeric = policy.IsNonAlphanumericRequired;
+                //StringBuilder newPassword = new StringBuilder();
+                //while (newPassword.Length &lt; policy.RequiredLength)
+                //{
+                //    char c = (char)random.Next(32, 126);
+
+                //    var flag = isDigit || isLower || isUpper || isNonAlphaNumeric;
+
+                //    ///FLAG =FALSE WHEN all 4 are false
+
+
+                //    if (!flag &amp;&amp; char.IsDigit(c) &amp;&amp; policy.IsDigitRequired) newPassword.Append(c);
+
+                //    if (!flag &amp;&amp; char.IsLower(c) &amp;&amp; policy.IsLowercaseRequired) newPassword.Append(c);
+                //    if (!flag &amp;&amp; char.IsUpper(c) &amp;&amp; policy.IsUppercaseRequired) newPassword.Append(c);
+                //    if (!flag &amp;&amp; !char.IsLetterOrDigit(c) &amp;&amp; policy.IsNonAlphanumericRequired) newPassword.Append(c);
+
+
+                //    if (char.IsDigit(c))
+
+                //        if (isDigit)
+                //        {
+                //            newPassword.Append(c);
+                //            isDigit = false;
+                //        }
+                //        else continue;
+
+                //    else if (char.IsLower(c))
+                //        if (isLower)
+                //        {
+                //            newPassword.Append(c);
+                //            isLower = false;
+                //        }
+                //        else continue;
+
+                //    else if (char.IsUpper(c))
+                //        if (isUpper)
+                //        {
+                //            newPassword.Append(c);
+                //            isUpper = false;
+                //        }
+                //        else continue;
+
+                //    else if (!char.IsLetterOrDigit(c))
+                //        if (isNonAlphaNumeric)
+                //        {
+                //            newPassword.Append(c);
+                //            isNonAlphaNumeric = false;
+                //        }
+                //        else continue;
+
+
+
+                #endregion
+                int passwordLength = policy.RequiredLength;
+                int uppercaseLength = policy.UppercasesRequired;
+                int lowercaseLength = policy.LowercasesRequired;
+                int specialLength = policy.NonAlphanumericsRequired;
+                int digitLength = policy.DigitsRequired;
+
+                string specialChars = &quot;!@#$%^&amp;*()_+-=[]{}|,./&lt;&gt;?;&#39;:\&quot;&quot;;                
+
+                string newPassword = &quot;&quot;;
+
+                Random random = new Random();
+                //var random = RandomNumberGenerator.Create();
+
+                for (int i = 0; i &lt; uppercaseLength; i++)
+                {
+                    newPassword += (char)random.Next(65,91);
+                }
+
+                for (int i = 0; i &lt; lowercaseLength; i++)
+                {
+                    newPassword += (char)random.Next(97, 123);
+                }
+
+                for (int i = 0; i &lt; specialLength; i++)
+                {
+                    newPassword += specialChars[random.Next(0, specialChars.Length)];
+                }
+
+                for (int i = 0; i &lt; digitLength; i++)
+                {
+                    newPassword += (char)random.Next(48, 58);
+                }
+
+                var remainingCharLen = passwordLength - (uppercaseLength + lowercaseLength + specialLength + digitLength);
+                for (int i = 0; i &lt; remainingCharLen; i++) 
+                {
+                    newPassword += (char)random.Next(48, 123);
+                }
+
+                newPassword = new string(newPassword.OrderBy(x =&gt; random.Next()).ToArray());
+
+                var hashed = GenerateHash(newPassword.ToString());
+                //var hashed = EncryptPassword(newPassword.ToString());
+
+                var query = hashed.Substring(0, 5);
+                var leakedPasswords = LeakedPasswordCheck(query);
+
+                var newpassWordsList = new List&lt;string&gt;();
+                foreach(var i in leakedPasswords)
+                {
+                    var hashAlone = i.Split(&quot;:&quot;)[0];
+                    newpassWordsList.Add(query + hashAlone);
+                }
+
+                if (!leakedPasswords.Contains(hashed))
+                {
+                    //passwords.Add(hashed);
+                    passwords.Add(EncryptPassword(newPassword.ToString()));
+                    passwordsForCSV.Add(newPassword.ToString());
+                }            
+            }
+            WriteToCsv(passwordsForCSV, &quot;BulkGeneratedPasswords&quot;);
+            return passwords;
+        }
+
+
+        public void WriteToCsv(List&lt;string&gt; passwords, string filePath)
+        {
+            using (var writer = new StreamWriter(filePath))
+            {
+                foreach (string pass in passwords)
+                {
+                    writer.WriteLine(pass);
+                }
+            }
+        }
+
+
+        public List&lt;string&gt; LeakedPasswordCheck(string endUrl)
+        {
+            try
+            {
+                HttpClient client = new();
+                var baseUrl = Constants.HaveIBeenPawnedUrl; ;
+                HttpResponseMessage response = client.GetAsync(baseUrl + endUrl).Result;
+
+                var leakedPasswordsString = &quot;&quot;;
+                if (response.IsSuccessStatusCode)
+                {
+                    leakedPasswordsString = response.Content.ReadAsStringAsync().Result;
+                }
+                var leakedPasswords = leakedPasswordsString.Split(&quot;\r\n&quot;).ToList();
+                return leakedPasswords;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            
+        }
+
+
+        public bool BulkAssignPasswords()
+        {
+            var legacyAppUsers = _context.LegacyAppPassword.ToList();
+            var totalPasswordsRequired = legacyAppUsers.Count();
+            var passwords = BulkGeneratePassword(totalPasswordsRequired);
+
+            int i = 0;
+            passwords.ForEach(x =&gt;
+            {
+                legacyAppUsers[i].Password = x;
+                legacyAppUsers[i].LastResetTime = DateTime.Now;
+                i++;
+            });
+            _context.SaveChanges();
+            return true;
+
+        }
+
+        public async Task&lt;bool&gt; UpdatePolicy(Policy policy)
+        {
+            try
+            {
+                policy.PolicyCreatedDate = DateTime.Now;
+                string json = JsonSerializer.Serialize(policy);
+                
+
+                var userDetails = _context.UserDetails.FirstOrDefault(x =&gt; x.UserId == policy.AdminId);
+                var isLoggedin = _context.MasterPassword.FirstOrDefault(x =&gt; x.UserId.Equals(policy.AdminId)
+                &amp;&amp; x.Token.Equals(policy.LoginToken));
+
+
+                if(userDetails != null &amp;&amp; userDetails.AdminAccess.Equals(true) &amp;&amp; isLoggedin != null)
+                {
+                    File.WriteAllText(&quot;PasswordPolicy.json&quot;, json);
+                    var response = _context.MasterPassword.ToList();
+                    ///updating all user&#39;s password status as invalid with respect to the new policy
+                    response.ForEach(x =&gt;
+                    {
+                        x.IsPasswordvalid = false;
+                    });
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        /// &lt;summary&gt;
+        /// disable user means=&gt; UserDetaails.IsDisabled = 1
+        /// &lt;/summary&gt;
+        /// &lt;returns&gt;&lt;/returns&gt;
+        public bool DisableUsers()
+        {
+            Policy policy = ReadPolicyFromJson().Result;
+
+            var policyUpdatedDate = policy.PolicyCreatedDate;
+
+            var usersToDisable =
+                _context.MasterPassword
+                .Where(x =&gt; x.LastResetTime &lt;= policy.PolicyCreatedDate &amp;&amp; policyUpdatedDate.AddDays(1) &lt;= DateTime.Now)
+                .ToList();
+
+            var userIds = usersToDisable.Select(x =&gt; x.UserId);
+            var users = _context.UserDetails.Where(x =&gt; userIds.Contains(x.UserId)).ToList();
+
+            users.ForEach(x =&gt;
+            {
+                x.IsDisabled = true;
+            });
+            _context.SaveChanges();
+            return true;
+        }
+
+        public async Task&lt;LoginResponse&gt; Login(LoginRequest loginRequest)
+        {
+            try
+            {
+                LoginResponse loginResponse = new() { loginStatus = false, token = &quot;&quot; };
+                var user = _context.UserDetails.Where(x =&gt; x.Email == loginRequest.Email).FirstOrDefault();
+                if(user != null)
+                {
+                    var masterPassword = _context.MasterPassword.FirstOrDefault(y =&gt; y.UserId == user.UserId);
+                    if (masterPassword != null)
+                    {
+                        var loginPass = EncryptPassword(loginRequest.Password);
+
+                        var authToken = GenerateToken();
+
+
+                        if (loginPass.Equals(masterPassword.Password))
+                        {
+                            loginResponse.loginStatus = true;
+                            loginResponse.token = authToken;
+                            masterPassword.Token = authToken;
+                            masterPassword.LastResetTime = DateTime.Now;
+                            await _context.SaveChangesAsync();
+                        }
+                        return loginResponse;
+                    }
+                    
+                }
+                return loginResponse;
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            
+        }
+
+        public string GenerateToken()
+        {
+            var allChar = &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&amp;*()&quot;;
+            var random = new Random();
+            var resultToken = new string(
+               Enumerable.Repeat(allChar, 30)
+               .Select(token =&gt; token[random.Next(token.Length)]).ToArray());
+
+            return resultToken.ToString();
+        }
+
+        public async Task&lt;LeakedPasswordCheckResponse&gt; CheckPasswordLeak(PasswordLeakCheckRequest request)
+        {
+            LeakedPasswordCheckResponse data = new();
+            List&lt;PasswordCheckDetails&gt; passwordDatas = new();
+            foreach (var password in request.Passwords)
+            {
+                PasswordCheckDetails passwordData = new();
+                var hashed = GenerateHash(password.ToString());
+                var query = hashed.Substring(0, 5);
+                var leakedPasswords = LeakedPasswordCheck(query);
+                var isValidPassword = PolicyValidation(password);
+                var newpassWordsList = new List&lt;string&gt;();
+                foreach (var i in leakedPasswords)
+                {
+                    var hashAlone = i.Split(&quot;:&quot;)[0];
+                    newpassWordsList.Add(query + hashAlone);
+                }
+                passwordData.Password = password;
+                passwordData.IsPasswordLeaked = newpassWordsList.Contains(hashed) ? true : false;
+                passwordData.IsPasswordValid = isValidPassword;
+                passwordDatas.Add(passwordData);
+                data.PasswordCheckDetail = passwordDatas;
+
+            }
+
+            return data;
+        }
+
+        public bool PolicyValidation(string password)
+        {
+            Policy policy = ReadPolicyFromJson().Result;
+            int nonAlphanumericCount = 0;
+            int digitCount = 0;
+            int lowercaseCount = 0;
+            int uppercaseCount = 0;
+
+            foreach (char c in password)
+            {
+                if (!char.IsLetterOrDigit(c))
+                {
+                    nonAlphanumericCount++;
+                }
+                else if (char.IsDigit(c))
+                {
+                    digitCount++;
+                }
+                else if (char.IsLower(c))
+                {
+                    lowercaseCount++;
+                }
+                else if (char.IsUpper(c))
+                {
+                    uppercaseCount++;
+                }
+            }
+
+            return password.Length == policy.RequiredLength
+                &amp;&amp; nonAlphanumericCount &gt;= policy.NonAlphanumericsRequired
+                &amp;&amp; digitCount &gt;= policy.DigitsRequired
+                &amp;&amp; lowercaseCount &gt;= policy.LowercasesRequired
+                &amp;&amp; uppercaseCount &gt;= policy.UppercasesRequired;
+        }
+
+        public async Task&lt;LegacyAppLoginResponse&gt; LegacyAppLogin(LegacyAppLoginRequest legacyAppLoginRequest)
+        {
+            var legacyAppDetail = _context.LegacyAppPassword.FirstOrDefault(
+                x =&gt; x.AppId.Equals(legacyAppLoginRequest.AppId) &amp;&amp; x.UserId.Equals(legacyAppLoginRequest.UserId));
+            
+            LegacyAppLoginResponse response = new() { LoginStatus = false, Token = &quot;&quot; };
+            if (legacyAppDetail != null)
+            {
+                var originalPassword = DecryptPassword(legacyAppDetail.Password);
+                if (legacyAppLoginRequest.Password.Equals(originalPassword))
+                {
+                    var token = GenerateToken();
+                    response.LoginStatus = true;
+                    response.Token = token;
+                    legacyAppDetail.LoginToken = token;
+                    await _context.SaveChangesAsync();
+                }
+            }
+            return response;
+        }
+
+        public async Task&lt;string&gt; CreateUser(CreateUserRequest user)
+        {
+            try
+            {
+                UserDetails newUser = new()
+                {
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email
+                };
+                _context.UserDetails.Add(newUser);
+               
+                await _context.SaveChangesAsync();
+                var newUserJustCreated = _context.UserDetails.FirstOrDefault(x =&gt; x.Email.Equals(user.Email));
+                if(newUserJustCreated != null)
+                {
+                    MasterPassword mp = new()
+                    {
+                        Password = EncryptPassword(user.Password),
+                        UserId = newUserJustCreated.UserId,
+                        LastResetTime = DateTime.Now,
+                        IsPasswordvalid = true,
+                        Token = &quot;&quot;
+                    };
+                    _context.MasterPassword.Add(mp);
+                    await _context.SaveChangesAsync();
+                    var passwords = BulkGeneratePassword(user.AppIds.Count);
+                    int count = 0;
+
+                    foreach (var appId in user.AppIds)
+                    {
+                        LegacyAppPassword legacyApp = new()
+                        {
+                            UserId = newUserJustCreated.UserId,
+                            AppId = appId,
+                            Password = passwords[count],
+                            LastResetTime = DateTime.Now,
+                            LoginToken = &quot;&quot;
+                        };
+                        _context.LegacyAppPassword.Add(legacyApp);
+                        count++;
+
+                    }
+                    await _context.SaveChangesAsync();
+                    return &quot;user created&quot;;
+                }
+                return &quot;User Creation failed&quot;;
+                
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            
+        }
+    }
+}
+
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[17,9,17,48,1],[18,3,18,4,1],[19,4,19,23,1],[20,3,20,4,1],[24,9,24,10,1],[26,13,26,36,1],[27,20,27,76,1],[28,13,28,14,1],[29,17,29,45,1],[30,17,30,34,1],[31,17,31,18,0],[33,21,33,35,0],[36,17,36,18,1],[37,21,37,71,1],[38,21,38,40,1],[39,21,39,22,1],[40,25,40,39,1],[43,21,43,22,0],[44,25,44,59,0],[51,9,51,10,1],[55,3,55,4,1],[56,4,56,95,1],[57,4,57,20,1],[58,4,58,5,0],[59,17,59,60,0],[60,13,60,14,0],[61,4,61,38,1],[62,4,62,16,1],[63,3,63,4,1],[66,9,66,10,0],[67,13,67,104,0],[68,13,68,30,0],[69,13,69,14,0],[71,13,71,14,0],[72,13,72,47,0],[73,13,73,25,0],[74,9,74,10,0],[77,9,77,10,0],[78,13,78,102,0],[79,13,79,49,0],[79,49,79,56,0],[79,56,79,58,0],[80,13,80,96,0],[81,13,81,37,0],[82,13,82,51,0],[83,13,83,20,0],[83,22,83,29,0],[83,30,83,32,0],[83,33,83,43,0],[84,13,84,14,0],[86,17,86,67,0],[87,17,87,34,0],[88,17,88,36,0],[89,17,89,18,0],[90,21,90,60,0],[90,60,90,80,0],[90,80,90,82,0],[91,21,91,68,0],[92,17,92,18,0],[92,18,92,19,0],[93,17,98,19,0],[100,17,100,42,0],[101,13,101,14,0],[103,13,103,45,0],[104,13,104,25,0],[105,9,105,10,0],[109,9,109,10,0],[110,13,110,119,0],[111,13,111,71,0],[112,13,112,72,0],[113,13,113,112,0],[114,13,114,14,0],[115,17,115,58,0],[116,17,116,65,0],[117,17,117,51,0],[118,17,118,29,0],[120,13,120,26,0],[121,9,121,10,0],[130,9,130,10,1],[132,13,132,14,1],[133,17,133,37,1],[134,17,134,38,1],[135,17,135,18,1],[136,21,136,64,1],[137,21,137,64,1],[138,21,138,63,1],[139,21,139,36,1],[141,22,141,57,0],[144,13,144,46,0],[145,13,145,14,0],[146,17,146,23,0],[149,9,149,10,1],[156,9,156,10,0],[157,13,157,62,0],[158,13,158,60,0],[159,13,159,28,0],[160,9,160,10,0],[163,9,163,10,1],[164,13,164,44,1],[166,13,166,102,1],[167,9,167,10,1],[175,9,175,10,1],[176,13,176,44,1],[177,13,177,50,1],[178,13,178,57,1],[180,13,180,54,1],[181,13,181,14,1],[240,17,240,60,1],[241,17,241,65,1],[242,17,242,65,1],[243,17,243,69,1],[244,17,244,57,1],[246,17,246,72,1],[248,17,248,41,1],[250,17,250,46,1],[253,22,253,31,1],[253,33,253,52,1],[253,54,253,57,1],[254,17,254,18,1],[255,21,255,61,1],[256,17,256,18,1],[258,22,258,31,1],[258,33,258,52,1],[258,54,258,57,1],[259,17,259,18,1],[260,21,260,63,1],[261,17,261,18,1],[263,22,263,31,1],[263,33,263,50,1],[263,52,263,55,1],[264,17,264,18,1],[265,21,265,86,1],[266,17,266,18,1],[268,22,268,31,1],[268,33,268,48,1],[268,50,268,53,1],[269,17,269,18,1],[270,21,270,62,1],[271,17,271,18,1],[273,17,273,123,1],[274,22,274,31,1],[274,33,274,53,1],[274,55,274,58,1],[275,17,275,18,1],[276,21,276,63,1],[277,17,277,18,1],[279,17,279,67,1],[279,67,279,80,1],[279,80,279,93,1],[281,17,281,67,1],[284,17,284,52,1],[285,17,285,66,1],[287,17,287,59,1],[288,17,288,24,1],[288,25,288,30,1],[288,31,288,33,1],[288,34,288,49,1],[289,17,289,18,1],[290,21,290,53,1],[291,21,291,61,1],[292,17,292,18,1],[294,17,294,55,1],[295,17,295,18,1],[297,21,297,76,1],[298,21,298,65,1],[299,17,299,18,1],[300,13,300,14,1],[301,13,301,67,1],[302,13,302,30,1],[303,9,303,10,1],[307,9,307,10,1],[308,20,308,59,1],[309,13,309,14,1],[310,17,310,24,1],[310,26,310,37,1],[310,38,310,40,1],[310,41,310,50,1],[311,17,311,18,1],[312,21,312,44,1],[313,17,313,18,1],[314,13,314,14,1],[315,9,315,10,1],[319,9,319,10,1],[321,13,321,14,1],[322,17,322,43,1],[323,17,323,60,1],[323,61,323,62,1],[324,17,324,89,1],[326,17,326,48,1],[327,17,327,50,1],[328,17,328,18,1],[329,21,329,89,1],[330,17,330,18,1],[331,17,331,84,1],[332,17,332,40,1],[334,13,334,33,0],[335,13,335,14,0],[336,17,336,23,0],[339,9,339,10,1],[343,9,343,10,0],[344,13,344,70,0],[345,13,345,65,0],[346,13,346,74,0],[348,13,348,23,0],[349,13,350,13,0],[350,13,350,14,0],[350,14,351,17,0],[351,17,351,48,0],[351,48,352,17,0],[352,17,352,64,0],[352,64,353,17,0],[353,17,353,21,0],[353,21,354,13,0],[354,13,354,14,0],[354,14,354,16,0],[355,13,355,36,0],[356,13,356,25,0],[358,9,358,10,0],[361,9,361,10,1],[363,13,363,14,1],[364,17,364,57,1],[365,17,365,64,1],[368,17,368,104,1],[369,17,370,55,1],[373,17,373,102,1],[374,17,374,18,0],[375,21,375,68,0],[376,21,376,69,0],[378,21,379,21,0],[379,21,379,22,0],[379,22,380,25,0],[380,25,380,51,0],[380,51,381,21,0],[381,21,381,22,0],[381,22,381,24,0],[382,21,382,55,0],[383,21,383,33,0],[385,17,385,30,1],[387,13,387,33,0],[388,13,388,14,0],[389,17,389,23,0],[391,9,391,10,1],[398,9,398,10,0],[399,13,399,57,0],[401,13,401,62,0],[403,13,406,27,0],[408,13,408,54,0],[408,54,408,62,0],[408,62,408,64,0],[409,13,409,94,0],[411,13,412,13,0],[412,13,412,14,0],[412,14,413,17,0],[413,17,413,37,0],[413,37,414,13,0],[414,13,414,14,0],[414,14,414,16,0],[415,13,415,36,0],[416,13,416,25,0],[417,9,417,10,0],[420,9,420,10,1],[422,13,422,14,1],[423,17,423,89,1],[424,17,424,108,1],[425,17,425,33,1],[426,17,426,18,0],[427,21,427,111,0],[428,21,428,48,0],[429,21,429,22,0],[430,25,430,80,0],[432,25,432,57,0],[435,25,435,71,0],[436,25,436,26,0],[437,29,437,62,0],[438,29,438,61,0],[439,29,439,62,0],[440,29,440,73,0],[441,29,441,63,0],[442,25,442,26,0],[443,25,443,46,0],[446,17,446,18,0],[447,17,447,38,1],[450,13,450,33,0],[451,13,451,14,0],[452,17,452,23,0],[455,9,455,10,1],[458,9,458,10,0],[459,13,459,76,0],[460,13,460,39,0],[461,13,463,33,0],[463,33,463,65,0],[463,65,463,78,0],[465,13,465,43,0],[466,9,466,10,0],[469,9,469,10,0],[470,13,470,54,0],[471,13,471,62,0],[472,13,472,20,0],[472,22,472,34,0],[472,35,472,37,0],[472,38,472,55,0],[473,13,473,14,0],[474,17,474,59,0],[475,17,475,64,0],[476,17,476,52,0],[477,17,477,66,0],[478,17,478,66,0],[479,17,479,59,0],[480,17,480,24,0],[480,26,480,31,0],[480,32,480,34,0],[480,35,480,50,0],[481,17,481,18,0],[482,21,482,53,0],[483,21,483,61,0],[484,17,484,18,0],[485,17,485,50,0],[486,17,486,98,0],[487,17,487,64,0],[488,17,488,49,0],[489,17,489,58,0],[491,13,491,14,0],[493,13,493,25,0],[494,9,494,10,0],[497,9,497,10,0],[498,13,498,57,0],[499,13,499,42,0],[500,13,500,32,0],[501,13,501,36,0],[502,13,502,36,0],[504,13,504,20,0],[504,22,504,28,0],[504,29,504,31,0],[504,32,504,40,0],[505,13,505,14,0],[506,17,506,46,0],[507,17,507,18,0],[508,21,508,44,0],[509,17,509,18,0],[510,22,510,42,0],[511,17,511,18,0],[512,21,512,34,0],[513,17,513,18,0],[514,22,514,42,0],[515,17,515,18,0],[516,21,516,38,0],[517,17,517,18,0],[518,22,518,42,0],[519,17,519,18,0],[520,21,520,38,0],[521,17,521,18,0],[522,13,522,14,0],[524,13,528,64,0],[529,9,529,10,0],[532,9,532,10,0],[533,13,534,116,0],[536,13,536,89,0],[537,13,537,41,0],[538,13,538,14,0],[539,17,539,82,0],[540,17,540,77,0],[541,17,541,18,0],[542,21,542,49,0],[543,21,543,49,0],[544,21,544,44,0],[545,21,545,56,0],[546,21,546,55,0],[547,17,547,18,0],[548,13,548,14,0],[549,13,549,29,0],[550,9,550,10,0],[553,9,553,10,0],[555,13,555,14,0],[556,17,561,19,0],[562,17,562,51,0],[564,17,564,51,0],[565,17,565,111,0],[566,17,566,47,0],[567,17,567,18,0],[568,21,575,23,0],[576,21,576,53,0],[577,21,577,55,0],[578,21,578,77,0],[579,21,579,35,0],[581,21,581,28,0],[581,30,581,39,0],[581,40,581,42,0],[581,43,581,54,0],[582,21,582,22,0],[583,25,590,27,0],[591,25,591,67,0],[592,25,592,33,0],[594,21,594,22,0],[595,21,595,55,0],[596,21,596,43,0],[598,17,598,47,0],[601,13,601,33,0],[602,13,602,14,0],[603,17,603,23,0],[606,9,606,10,0]]);
+    </script>
+  </body>
+</html>

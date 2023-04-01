@@ -1,29 +1,40 @@
 ﻿using System;
+using PMS.Models;
 using Test1.Models;
 
 namespace Test1.Services
 {
 	public interface IPMSService
 	{
-        Policy ReadPolicyFromJson();
+        Task<Policy> ReadPolicyFromJson();
 
-        bool UpdateUserStatus(UpdateUserStatusRequest updateRequest);
+        Task<bool> UpdateUserStatus(UpdateUserStatusRequest updateRequest);
         
-        bool RequestAccess(AccessRequest updateRequest);
+        Task<bool> RequestAccess(AccessRequest updateRequest);
 
-        LegacyApps GetLegacyAppPasswords(int userId);
+        Task<LegacyApps> GetLegacyAppPasswords(int userId);
 
-        bool UpdatePassword(PasswordUpdateRequest passRequest);
+        Task<bool> UpdatePassword(PasswordUpdateRequest passRequest);
 
         List<string> BulkGeneratePassword(int noOfPasswords);
 
         bool BulkAssignPasswords();
 
-        bool UpdatePolicy(Policy policy);
+        Task<bool> UpdatePolicy(Policy policy);
 
         bool DisableUsers();
 
-        LoginResponse Login(LoginRequest loginRequest);
+        Task<LoginResponse> Login(LoginRequest loginRequest);
+
+        string DecryptPassword(string str);
+
+        string EncryptPassword(string str);
+
+        Task<LeakedPasswordCheckResponse> CheckPasswordLeak(PasswordLeakCheckRequest request);
+        Task<LegacyAppLoginResponse> LegacyAppLogin(LegacyAppLoginRequest legacyAppLoginRequest);
+
+        Task<string>CreateUser (CreateUserRequest user);
+
     }
 }
 

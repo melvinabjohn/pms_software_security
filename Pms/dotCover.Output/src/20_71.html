@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/melvinabraham/Desktop/Melvin/Hochschule/pms/Pms/Test1/Models/UserDetails.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+
+namespace Test1.Models
+{
+    [Table(&quot;UserDetails&quot;)]
+    public class UserDetails
+	{
+		public UserDetails()
+		{
+		}
+        [Key]
+		public int UserId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Email { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsDisabled { get; set; }
+        public bool AdminAccess { get; set; }
+
+
+    }
+}
+
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[11,3,11,23,0],[12,3,12,4,0],[13,3,13,4,0],[15,23,15,27,0],[15,28,15,32,0],[16,35,16,39,0],[16,40,16,44,0],[17,34,17,38,0],[17,39,17,43,0],[18,31,18,35,0],[18,36,18,40,0],[19,32,19,36,0],[19,37,19,41,0],[20,34,20,38,0],[20,39,20,43,0],[21,35,21,39,0],[21,40,21,44,0]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/melvinabraham/Desktop/Melvin/Hochschule/pms/Pms/Test1/Migrations/20230211173013_V7.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace Test1.Migrations
+{
+    public partial class V7 : Migration
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.AlterColumn&lt;int&gt;(
+                name: &quot;UserId&quot;,
+                table: &quot;UserDetails&quot;,
+                type: &quot;int&quot;,
+                nullable: false,
+                oldClrType: typeof(int),
+                oldType: &quot;int&quot;)
+                .OldAnnotation(&quot;SqlServer:Identity&quot;, &quot;1, 1&quot;);
+
+            migrationBuilder.AddForeignKey(
+                name: &quot;FK_UserDetails_MasterPassword_UserId&quot;,
+                table: &quot;UserDetails&quot;,
+                column: &quot;UserId&quot;,
+                principalTable: &quot;MasterPassword&quot;,
+                principalColumn: &quot;Id&quot;,
+                onDelete: ReferentialAction.Cascade);
+        }
+
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropForeignKey(
+                name: &quot;FK_UserDetails_MasterPassword_UserId&quot;,
+                table: &quot;UserDetails&quot;);
+
+            migrationBuilder.AlterColumn&lt;int&gt;(
+                name: &quot;UserId&quot;,
+                table: &quot;UserDetails&quot;,
+                type: &quot;int&quot;,
+                nullable: false,
+                oldClrType: typeof(int),
+                oldType: &quot;int&quot;)
+                .Annotation(&quot;SqlServer:Identity&quot;, &quot;1, 1&quot;);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,9,10,10,0],[11,13,18,62,0],[20,13,26,54,0],[27,9,27,10,0],[30,9,30,10,0],[31,13,33,39,0],[35,13,42,59,0],[43,9,43,10,0]]);
+    </script>
+  </body>
+</html>

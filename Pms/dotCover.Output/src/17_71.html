@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/melvinabraham/Desktop/Melvin/Hochschule/pms/Pms/Test1/Models/PMSDbContext.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+using System.Reflection.Metadata;
+using System.Xml;
+using Microsoft.EntityFrameworkCore;
+
+namespace Test1.Models
+{
+
+    public class PMSDbContext : DbContext
+	{
+        public PMSDbContext(DbContextOptions&lt;PMSDbContext&gt; options)
+                : base(options)
+        {
+
+        }
+
+        public DbSet&lt;UserDetails&gt; UserDetails { get; set; } = null!;
+        public DbSet&lt;MasterPassword&gt; MasterPassword { get; set; } = null!;
+        public DbSet&lt;LegacyAppData&gt; LegacyAppData { get; set; } = null!;
+        public DbSet&lt;LegacyAppPassword&gt; LegacyAppPassword { get; set; } = null!;
+
+    }
+}
+
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[13,19,13,32,1],[14,9,14,10,1],[16,9,16,10,1],[18,49,18,53,1],[18,54,18,58,1],[18,63,18,68,1],[19,55,19,59,1],[19,60,19,64,1],[19,69,19,74,1],[20,53,20,57,0],[20,58,20,62,1],[20,67,20,72,1],[21,61,21,65,0],[21,66,21,70,1],[21,75,21,80,1]]);
+    </script>
+  </body>
+</html>

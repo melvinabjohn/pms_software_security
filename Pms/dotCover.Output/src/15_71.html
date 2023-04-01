@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/melvinabraham/Desktop/Melvin/Hochschule/pms/Pms/Test1/Models/MasterPassword.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Test1.Models
+{
+    [Table(&quot;MasterPassword&quot;)]
+    public class MasterPassword
+	{
+		public MasterPassword()
+		{
+
+		}
+		[Key]
+		public int Id { get; set; }
+		public int UserId { get; set; }
+		public string Password { get; set; }
+        public DateTime LastResetTime { get; set; }
+        public bool IsPasswordvalid { get; set; }
+        public string Token{ get; set; }
+
+		//public virtual UserDetails userDetails { get; set; }
+
+    }
+}
+
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,3,10,26,0],[11,3,11,4,0],[13,3,13,4,0],[15,19,15,23,0],[15,24,15,28,0],[16,23,16,27,0],[16,28,16,32,0],[17,28,17,32,0],[17,33,17,37,0],[18,41,18,45,0],[18,46,18,50,0],[19,39,19,43,0],[19,44,19,48,0],[20,30,20,34,0],[20,35,20,39,0]]);
+    </script>
+  </body>
+</html>

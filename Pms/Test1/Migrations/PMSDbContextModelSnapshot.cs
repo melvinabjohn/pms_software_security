@@ -53,6 +53,10 @@ namespace Test1.Migrations
                     b.Property<DateTime>("LastResetTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("LoginToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -98,10 +102,7 @@ namespace Test1.Migrations
             modelBuilder.Entity("Test1.Models.UserDetails", b =>
                 {
                     b.Property<int>("UserId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"), 1L, 1);
 
                     b.Property<bool>("AdminAccess")
                         .HasColumnType("bit");
@@ -127,6 +128,23 @@ namespace Test1.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("UserDetails");
+                });
+
+            modelBuilder.Entity("Test1.Models.UserDetails", b =>
+                {
+                    b.HasOne("Test1.Models.MasterPassword", "masterPassword")
+                        .WithOne("userDetails")
+                        .HasForeignKey("Test1.Models.UserDetails", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("masterPassword");
+                });
+
+            modelBuilder.Entity("Test1.Models.MasterPassword", b =>
+                {
+                    b.Navigation("userDetails")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

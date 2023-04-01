@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/melvinabraham/Desktop/Melvin/Hochschule/pms/Pms/pms-testProject/TestPMSService.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using Microsoft.EntityFrameworkCore;
+using Test1.Models;
+using static pms_testProject.MockData.DataFixture&lt;Moq.Mock&gt;;
+using Test1.Services;
+using pms_testProject.MockData;
+using Microsoft.Extensions.Configuration;
+using Castle.Core.Configuration;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+
+namespace pms_testProject
+{
+    public class TestPMSService
+    {
+        private readonly PMSService pmsService1;
+        private DbContextOptions&lt;PMSDbContext&gt; dbContextOptions;
+        private PMSDbContext dbContextOptions1;
+
+        //private DbContextOptions&lt;PMSDbContext&gt; dbContextOptions1;
+        
+        private IConfigurationRoot _configuration;
+
+        public TestPMSService()
+        {
+            #region old
+            //var builder = new ConfigurationBuilder()
+            //  .SetBasePath(Directory.GetCurrentDirectory())
+            //  .AddJsonFile(&quot;appsettings.json&quot;);
+            //_configuration = builder.Build();
+            //dbContextOptions = new DbContextOptionsBuilder&lt;PMSDbContext&gt;()
+            //    .UseSqlServer(_configuration.GetConnectionString(&quot;DefaultConnection&quot;))
+            //    .Options;
+            #endregion 
+
+            var dbName = $&quot;PMSDB&quot;;
+            dbContextOptions = new DbContextOptionsBuilder&lt;PMSDbContext&gt;()
+                .UseInMemoryDatabase(dbName)
+                .Options;
+            dbContextOptions1 = new PMSDbContext(dbContextOptions);
+            pmsService1 = new PMSService(dbContextOptions1);
+        }
+
+
+
+        [Fact]
+        public async Task ReadPolicyFromJson_Success_Test()
+        {
+            var policy = pmsService1.ReadPolicyFromJson();
+
+            Assert.IsAssignableFrom&lt;Policy?&gt;(policy.Result);
+
+        }
+
+        [Fact]
+        public async Task UpdateUserStatus_Success_Test()
+        {
+
+            UpdateUserStatusRequest request = MockDataReader.GetStubData&lt;UpdateUserStatusRequest&gt;(&quot;UpdateUserStatusRequest_Success&quot;);
+            var res = pmsService1.UpdateUserStatus(request);
+
+            Assert.True(res.Result == true);
+
+        }
+
+        [Fact]
+        public async Task EncryptPassword_Returns_String()
+        {
+
+            var res = pmsService1.EncryptPassword(&quot;melvin&quot;);
+
+            Assert.True(&quot;bWVsdmlu&quot; == res);
+        }
+
+        
+        //[Fact]
+        //public async void UpdatePolicy_Returns_true()
+        //{
+        //    Policy policy = MockDataReader.GetStubData&lt;Policy&gt;(&quot;PolicyUpdate_Success&quot;);
+
+        //    var res = pmsService1.UpdatePolicy(policy);
+
+        //    Assert.True(true == res.Result);
+        //}
+
+        
+
+        [Fact]
+        public async void BulkGeneratePassword_Returns_Count()
+        {
+            
+            var res = pmsService1.BulkGeneratePassword(5);
+
+            Assert.True(5 == res.Count);
+        }
+
+        [Fact]
+        public async void BulkGeneratePassword_Returns_DifferentCount()
+        {
+
+            var res = pmsService1.BulkGeneratePassword(6);
+
+            Assert.False(5 == res.Count);
+        }
+
+        [Fact]
+        public async void BulkGeneratePassword_Include_UpperAndLowerCase_Returns_Count()
+        {
+            Policy policy = MockDataReader.GetStubData&lt;Policy&gt;(&quot;Policy_Include_UpperAndLowerCase&quot;);
+
+            await pmsService1.UpdatePolicy(policy);
+            var res = pmsService1.BulkGeneratePassword(10);
+
+            Assert.True(10 == res.Count);
+            
+        }
+
+        [Fact]
+        public async void BulkGeneratePassword_Include_DigitAndNonAlphaNumeric_Returns_Count()
+        {
+            Policy policy = MockDataReader.GetStubData&lt;Policy&gt;(&quot;Policy_Include_DigitAndNonAlphaNumericCase&quot;);
+
+            await pmsService1.UpdatePolicy(policy);
+            var res = pmsService1.BulkGeneratePassword(8);
+
+            Assert.True(8 == res.Count);
+
+        }
+
+        //[Fact]
+        //public async Task Login_ValidCredentials_ReturnsSuccessfulLogin()
+        //{
+        //    // Arrange
+        //    var loginRequest = new LoginRequest
+        //    {
+        //        Email = &quot;melvin@gmail.com&quot;,
+        //        Password = &quot;melvinasda&quot;
+        //    };
+
+        //    // Act
+        //    var result = await pmsService1.Login(loginRequest);
+
+        //    // Assert
+        //    Assert.True(result.loginStatus);
+        //    Assert.NotEmpty(result.token);
+        //}
+
+
+        [Fact]
+        public async void Login_Returns_False_And_EmptyToken()
+        {
+            LoginRequest login = MockDataReader.GetStubData&lt;LoginRequest&gt;(&quot;LoginRequest_Failure&quot;);
+
+            var res = await pmsService1.Login(login);
+
+            Assert.True(false == res.loginStatus);
+            Assert.True(&quot;&quot; == res.token);
+
+        }
+
+
+        [Fact]
+        public void LeakedPasswordCheck_Returns_List()
+        {
+
+            var res = pmsService1.LeakedPasswordCheck(&quot;F796F&quot;);
+            Assert.IsAssignableFrom&lt;List&lt;string&gt;?&gt;(res);
+            
+        }
+    }
+}
+
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[23,9,23,32,1],[24,9,24,10,1],[35,13,35,35,1],[36,13,38,26,1],[39,13,39,68,1],[40,13,40,61,1],[41,9,41,10,1],[47,9,47,10,1],[48,13,48,59,1],[50,13,50,61,1],[52,9,52,10,1],[56,9,56,10,1],[58,13,58,134,1],[59,13,59,61,1],[61,13,61,45,1],[63,9,63,10,1],[67,9,67,10,1],[69,13,69,61,1],[71,13,71,44,1],[72,9,72,10,1],[89,9,89,10,1],[91,13,91,59,1],[93,13,93,41,1],[94,9,94,10,1],[98,9,98,10,1],[100,13,100,59,1],[102,13,102,42,1],[103,9,103,10,1],[107,9,107,10,1],[108,13,108,100,1],[110,13,110,52,1],[111,13,111,60,1],[113,13,113,42,1],[115,9,115,10,1],[119,9,119,10,1],[120,13,120,110,1],[122,13,122,52,1],[123,13,123,59,1],[125,13,125,41,1],[127,9,127,10,1],[150,9,150,10,1],[151,13,151,99,1],[153,13,153,54,1],[155,13,155,51,1],[156,13,156,42,1],[158,9,158,10,1],[163,9,163,10,1],[165,13,165,64,1],[166,13,166,57,1],[168,9,168,10,1]]);
+    </script>
+  </body>
+</html>

@@ -19,6 +19,8 @@ namespace Test1.Models
         public bool IsPasswordvalid { get; set; }
         public string Token{ get; set; }
 
+		//public virtual UserDetails userDetails { get; set; }
+
     }
 }
 

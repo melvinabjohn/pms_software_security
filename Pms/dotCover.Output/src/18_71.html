@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/melvinabraham/Desktop/Melvin/Hochschule/pms/Pms/Test1/Models/Policy.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.ComponentModel.DataAnnotations;
+
+namespace Test1.Models
+{
+
+	public class Policy
+	{
+        [Required]
+        public int AdminId { get; set; }
+        [Required]
+        public string LoginToken { get; set; }
+
+        [Required]
+        [Range(0, 100)]
+        public int PolicyId { get; set; }
+        public string PolicyName { get; set; }
+
+        [Required]
+        [DataType(DataType.Date)]
+        public DateTime PolicyCreatedDate { get; set; }
+        [Required]
+        public int RequiredLength { get; set; }
+        [Required]
+        public int NonAlphanumericsRequired { get; set; }
+        //public bool IsNonAlphanumericRequired { get; set; }
+        [Required]
+        public int DigitsRequired { get; set; }
+        //public bool IsDigitRequired { get; set; }
+        [Required]
+        public int LowercasesRequired { get; set; }
+        //public bool IsLowercaseRequired { get; set; }
+        [Required]
+        public int UppercasesRequired { get; set; }
+        //public bool IsUppercaseRequired { get; set; }
+
+    }
+
+}
+
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,30,10,34,1],[10,35,10,39,1],[12,36,12,40,1],[12,41,12,45,1],[16,31,16,35,1],[16,36,16,40,1],[17,36,17,40,1],[17,41,17,45,1],[21,45,21,49,1],[21,50,21,54,1],[23,37,23,41,1],[23,42,23,46,1],[25,47,25,51,1],[25,52,25,56,1],[28,37,28,41,1],[28,42,28,46,1],[31,41,31,45,1],[31,46,31,50,1],[34,41,34,45,1],[34,46,34,50,1]]);
+    </script>
+  </body>
+</html>

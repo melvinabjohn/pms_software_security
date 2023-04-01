@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/melvinabraham/Desktop/Melvin/Hochschule/pms/Pms/Test1/Migrations/20230109162631_V3.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace Test1.Migrations
+{
+    public partial class V3 : Migration
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.AddColumn&lt;bool&gt;(
+                name: &quot;AdminAccess&quot;,
+                table: &quot;UserDetails&quot;,
+                type: &quot;bit&quot;,
+                nullable: false,
+                defaultValue: false);
+
+            migrationBuilder.AddColumn&lt;bool&gt;(
+                name: &quot;resetStatus&quot;,
+                table: &quot;MasterPassword&quot;,
+                type: &quot;bit&quot;,
+                nullable: false,
+                defaultValue: false);
+        }
+
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: &quot;AdminAccess&quot;,
+                table: &quot;UserDetails&quot;);
+
+            migrationBuilder.DropColumn(
+                name: &quot;resetStatus&quot;,
+                table: &quot;MasterPassword&quot;);
+        }
+    }
+}
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,9,10,10,0],[11,13,16,38,0],[18,13,23,38,0],[24,9,24,10,0],[27,9,27,10,0],[28,13,30,39,0],[32,13,34,42,0],[35,9,35,10,0]]);
+    </script>
+  </body>
+</html>

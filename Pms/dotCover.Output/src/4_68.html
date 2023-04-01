@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>/Users/melvinabraham/Desktop/Melvin/Hochschule/pms/Pms/pms-testProject/MockData/MockDataReader.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using Newtonsoft.Json;
+
+namespace pms_testProject.MockData
+{
+	public static class MockDataReader
+	{
+        private static readonly TestData&lt;object&gt; TestData = new() { Tests = new List&lt;Test&lt;object&gt;&gt;() };
+
+        static  MockDataReader()
+		{
+            var x = Directory.GetCurrentDirectory();
+            var y = Directory.Exists(&quot;/Users/melvinabraham/Desktop/Melvin/Hochschule/pms/Pms/pms-testProject/Stubs&quot;);
+            var path = &quot;/Users/melvinabraham/Desktop/Melvin/Hochschule/pms/Pms/pms-testProject/Stubs&quot;;
+            foreach (string file in Directory.EnumerateFiles(path))
+            {
+                var content = File.ReadAllText(file);
+            if (!string.IsNullOrWhiteSpace(content))
+            {
+                TestData&lt;object&gt; data =
+                    JsonConvert.DeserializeObject&lt;TestData&lt;object&gt;&gt;(content);
+
+                if (data != null &amp;&amp; data.Tests.Any())
+                {
+                    TestData.Tests.AddRange(data.Tests);
+                }
+            }
+        }
+    }
+
+        public static T GetStubData&lt;T&gt;(string Name) where T : class
+        {
+            var item = TestData?.Tests?.FirstOrDefault(x =&gt; x.Name.Equals(Name));
+
+            if (item != null &amp;&amp; item.Data != null)
+            {
+                var content = JsonConvert.SerializeObject(item.Data);
+                var data = JsonConvert.DeserializeObject&lt;T&gt;(content);
+                return data;
+            }
+
+            return null;
+        }
+    }
+
+    public class Test&lt;T&gt; where T : class
+    {
+        public string Name { get; set; }
+        public T Data { get; set; }
+    }
+
+    public class TestData&lt;T&gt; where T : class
+    {
+        public List&lt;Test&lt;T&gt;&gt; Tests { get; set; }
+    }
+}
+
+
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[8,9,8,104,1],[11,3,11,4,1],[12,13,12,53,1],[13,13,13,118,1],[14,13,14,103,1],[15,13,15,20,1],[15,22,15,33,1],[15,34,15,36,1],[15,37,15,67,1],[16,13,16,14,1],[17,17,17,54,1],[18,13,18,53,1],[19,13,19,14,1],[20,17,21,78,1],[23,17,23,54,1],[24,17,24,18,1],[25,21,25,57,1],[26,17,26,18,1],[27,13,27,14,1],[28,9,28,10,1],[29,5,29,6,1],[32,9,32,10,1],[33,13,33,61,1],[33,61,33,80,1],[33,80,33,82,1],[35,13,35,51,1],[36,13,36,14,1],[37,17,37,70,1],[38,17,38,70,1],[39,17,39,29,1],[42,13,42,25,0],[43,9,43,10,1],[48,30,48,34,1],[48,35,48,39,1],[49,25,49,29,1],[49,30,49,34,1],[54,38,54,42,1],[54,43,54,47,1]]);
+    </script>
+  </body>
+</html>
